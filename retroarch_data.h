@@ -256,6 +256,9 @@
  * If we hold ENABLE_HOTKEY button, block all libretro input to allow
  * hotkeys to be bound to same keys as RetroPad.
  **/
+#ifdef ERWERTAO_PLAY_DIRECTLY
+#define CHECK_INPUT_DRIVER_BLOCK_HOTKEY(normal_bind, autoconf_bind) true
+#else
 #define CHECK_INPUT_DRIVER_BLOCK_HOTKEY(normal_bind, autoconf_bind) \
 ( \
          (((normal_bind)->key      != RETROK_UNKNOWN) \
@@ -266,6 +269,7 @@
       || ((autoconf_bind)->joykey  != NO_BTN) \
       || ((autoconf_bind)->joyaxis != AXIS_NONE)) \
 )
+#endif
 
 #define INHERIT_JOYAXIS(binds) (((binds)[x_plus].joyaxis == (binds)[x_minus].joyaxis) || (  (binds)[y_plus].joyaxis == (binds)[y_minus].joyaxis))
 
@@ -1259,7 +1263,12 @@ enum
    RA_OPT_MAX_FRAMES_SCREENSHOT_PATH,
    RA_OPT_SET_SHADER,
    RA_OPT_ACCESSIBILITY,
-   RA_OPT_LOAD_MENU_ON_ERROR
+   RA_OPT_LOAD_MENU_ON_ERROR,
+////////erwertao add begin/////////
+#ifdef ERWERTAO_PLAY_DIRECTLY
+   RA_OPT_LOAD_ROM
+#endif
+////////erwertao add end///////////
 };
 
 enum  runloop_state
@@ -2319,6 +2328,14 @@ struct rarch_state
    bool audio_driver_mixer_mute_enable;
    bool audio_mixer_active;
 #endif
+
+////////// erwertao add begin///////////
+#ifdef ERWERTAO_PLAY_DIRECTLY
+   int ws;
+   char frontend_content_path[PATH_MAX_LENGTH];
+   int load_content_from_frontend;    //0 not load, 1 load, 2 loading
+#endif
+////////// erwertao add end ////////////
 };
 
 static struct rarch_state         rarch_st;
