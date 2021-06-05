@@ -8336,7 +8336,7 @@ static bool setting_append_list_input_player_options(
          strlcat(label, input_config_bind_map_get_desc(i), sizeof(label));
 
       snprintf(name, sizeof(name), "p%u_%s", user + 1, input_config_bind_map_get_base(i));
-
+      //printf("erwertao: %s,%s, %u,%u, %u,%u \n",name,label,input_config_binds[user][i].id,input_config_binds[user][i].key,defaults[i].id,defaults[i].key);
       CONFIG_BIND_ALT(
             list, list_info,
             &input_config_binds[user][i],

@@ -113,6 +113,9 @@
 
 #ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>
+//////// erwertao add begin //////////
+#include <emscripten/websocket.h>
+//////// erwertao add end  //////////
 #endif
 
 #ifdef HAVE_LIBNX
@@ -1365,7 +1368,6 @@ bool menu_input_key_bind_set_mode(
       * 1000000;
    uint64_t input_bind_timeout_us = settings->uints.input_bind_timeout
       * 1000000;
-
    if (!setting || !menu)
       return false;
    if (menu_input_key_bind_set_mode_common(&p_rarch->menu_driver_state,
@@ -1931,7 +1933,6 @@ static int generic_menu_iterate(
 
             bind.s   = menu->menu_state_msg;
             bind.len = sizeof(menu->menu_state_msg);
-
             if (menu_input_key_bind_iterate(p_rarch,
                      settings,
                      &bind, current_time))
@@ -2839,6 +2840,7 @@ void menu_entry_get(menu_entry_t *entry, size_t stack_idx,
    }
 }
 
+//erwertao:从菜单驱动rgui找到入口处理函数rgui_menu_entry_action
 int menu_entry_action(
       menu_entry_t *entry, size_t i, enum menu_action action)
 {
@@ -15443,6 +15445,13 @@ void main_exit(void *args)
 int rarch_main(int argc, char *argv[], void *data)
 {
    struct rarch_state *p_rarch                                   = &rarch_st;
+////////// erwertao add begin///////////
+#ifdef ERWERTAO_PLAY_DIRECTLY
+   p_rarch->ws = 0;
+   p_rarch->frontend_content_path[0] = 0;
+   p_rarch->load_content_from_frontend = 0;
+#endif
+////////// erwertao add end ////////////
 #if defined(HAVE_CG) || defined(HAVE_GLSL) || defined(HAVE_SLANG) || defined(HAVE_HLSL)
    p_rarch->shader_presets_need_reload                           = true;
 #endif
@@ -15504,7 +15513,6 @@ int rarch_main(int argc, char *argv[], void *data)
       info.argv            = argv;
       info.args            = data;
       info.environ_get     = p_rarch->current_frontend_ctx->environment_get;
-
       if (!task_push_load_content_from_cli(
                NULL,
                NULL,
@@ -15584,9 +15592,7 @@ void emscripten_mainloop(void)
          return;
       }
    }
-
    ret = runloop_iterate();
-
    task_queue_check();
 
    if (ret != -1)
@@ -23101,7 +23107,8 @@ static int16_t input_state(unsigned port, unsigned device,
       intfstream_write(p_rarch->bsv_movie_state_handle->file, &result, 2);
    }
 #endif
-
+   if (result!=0)
+      printf("erwertao: result: %u %u\n",port, result);   /////can get the result from remote maybe----erwertao
    return result;
 }
 
@@ -23727,6 +23734,51 @@ static unsigned menu_event(
    };
 
    ok_old                                          = ok_current;
+
+   ////////// erwertao add begin //////////////
+   #ifdef ERWERTAO_PLAY_DIRECTLY
+      //puts("erwertao: menu_event");
+      /*if (p_rarch->ws>0) {
+         puts("erwertao: ws send");
+
+         EMSCRIPTEN_RESULT result;
+         result = emscripten_websocket_send_utf8_text(p_rarch->ws, "hello");
+         if (result) {
+            printf("erwertao : Failed to emscripten_websocket_send_utf8_text(): %d\n", result);
+         }
+      }*/
+   #endif
+   ////////// erwertao add end //////////////
+
+   #ifdef ERWERTAO_PLAY_DIRECTLY
+      ////// erwertao add begin ////////
+      if (p_rarch->load_content_from_frontend!=0) {
+         if (p_rarch->load_content_from_frontend==1) {
+            puts("erwertao :load!");
+            //command_event(CMD_EVENT_LOAD_CORE,NULL);
+            content_ctx_info_t content_info;
+            content_info.argc                   = 0;
+            content_info.argv                   = NULL;
+            content_info.args                   = NULL;
+            content_info.environ_get            = NULL;
+            if (!task_push_load_content_with_core_from_menu(
+                     p_rarch->frontend_content_path, &content_info,
+                     CORE_TYPE_PLAIN, NULL, NULL))
+            {
+               puts("erwertao :failed!");
+               return MENU_ACTION_NOOP;
+            }
+            menu_driver_set_last_start_content(p_rarch->frontend_content_path);
+            p_rarch->load_content_from_frontend = 2;
+            return MENU_ACTION_NOOP;
+         }
+         else {
+            puts("erwertao :loading...");
+            return MENU_ACTION_NOOP;
+         }
+      }
+      ////// erwertao add end ///////////////
+   #endif
 
    /* Get pointer (mouse + touchscreen) input
     * Note: Must be done regardless of menu screensaver
@@ -24825,6 +24877,7 @@ static void input_keys_pressed(
 
    if (CHECK_INPUT_DRIVER_BLOCK_HOTKEY(binds_norm, binds_auto))
    {
+#ifndef ERWERTAO_PLAY_DIRECTLY
       if (  input_state_wrap(
                p_rarch->current_input,
                p_rarch->current_input_data,
@@ -24836,12 +24889,14 @@ static void input_keys_pressed(
                port, RETRO_DEVICE_JOYPAD, 0,
                RARCH_ENABLE_HOTKEY))
       {
+
          if (p_rarch->input_hotkey_block_counter < input_hotkey_block_delay)
             p_rarch->input_hotkey_block_counter++;
          else
             p_rarch->input_driver_block_libretro_input = true;
       }
       else
+#endif
       {
          p_rarch->input_hotkey_block_counter           = 0;
          p_rarch->input_driver_block_hotkey            = true;
@@ -34485,6 +34540,11 @@ static bool retroarch_parse_input_and_config(
       { "log-file",           1, NULL, RA_OPT_LOG_FILE },
       { "accessibility",      0, NULL, RA_OPT_ACCESSIBILITY},
       { "load-menu-on-error", 0, NULL, RA_OPT_LOAD_MENU_ON_ERROR },
+////////erwertao add begin/////////
+#ifdef ERWERTAO_PLAY_DIRECTLY
+      { "rom",                1, NULL, RA_OPT_LOAD_ROM },
+#endif
+////////erwertao add end///////////
       { NULL, 0, NULL, 0 }
    };
 
@@ -35031,7 +35091,15 @@ static bool retroarch_parse_input_and_config(
                /* Cache log file path override */
                rarch_log_file_set_override(optarg);
                break;
-
+///////////////erwertao add begin////////////////
+#ifdef ERWERTAO_PLAY_DIRECTLY
+            case RA_OPT_LOAD_ROM:
+               printf("erwertao load rom: %s\n",optarg);
+               p_rarch->load_content_from_frontend = 1;
+               strlcpy(p_rarch->frontend_content_path,optarg,sizeof(p_rarch->frontend_content_path));
+               break;
+#endif 
+///////////////erwertao add end///////////////////
             case 'h':
 #ifdef HAVE_CONFIGFILE
             case 'c':
@@ -35285,6 +35353,65 @@ static void input_mapper_reset(input_mapper_t *handle)
 }
 
 
+
+
+///////////// erwertao add begin ////////////////////
+#ifdef EMSCRIPTEN
+EM_BOOL onopen(int eventType, const EmscriptenWebSocketOpenEvent *websocketEvent, void *userData) {
+   puts("erwertao: ws onopen");
+   rarch_st.ws = websocketEvent->socket;
+    /*EMSCRIPTEN_RESULT result;
+    result = emscripten_websocket_send_utf8_text(websocketEvent->socket, "hoge");
+    if (result) {
+        printf("Failed to emscripten_websocket_send_utf8_text(): %d\n", result);
+    }*/
+   return EM_TRUE;
+}
+EM_BOOL onerror(int eventType, const EmscriptenWebSocketErrorEvent *websocketEvent, void *userData) {
+    puts("erwertao: ws onerror");
+
+    return EM_TRUE;
+}
+EM_BOOL onclose(int eventType, const EmscriptenWebSocketCloseEvent *websocketEvent, void *userData) {
+    puts("erwertao: ws onclose");
+
+    return EM_TRUE;
+}
+EM_BOOL onmessage(int eventType, const EmscriptenWebSocketMessageEvent *websocketEvent, void *userData) {
+    puts("erwertao: ws onmessage");
+    if (websocketEvent->isText) {
+        // For only ascii chars.
+        printf("message: %s\n", websocketEvent->data);
+    }
+
+    return EM_TRUE;
+}
+
+int wsinit() {
+    if (!emscripten_websocket_is_supported()) {
+        printf("erwertao: ws is not supported.\n");
+        return 0;
+    }
+    EmscriptenWebSocketCreateAttributes ws_attrs = {
+        "wss://echo.websocket.org",
+        NULL,
+        EM_TRUE
+    };
+
+    EMSCRIPTEN_WEBSOCKET_T ws = emscripten_websocket_new(&ws_attrs);
+    emscripten_websocket_set_onopen_callback(ws, NULL, onopen);
+    emscripten_websocket_set_onerror_callback(ws, NULL, onerror);
+    emscripten_websocket_set_onclose_callback(ws, NULL, onclose);
+    emscripten_websocket_set_onmessage_callback(ws, NULL, onmessage);
+    return ws;
+}
+#endif
+///////////// erwertao add end ////////////////////
+
+
+
+
+
 /**
  * retroarch_main_init:
  * @argc                 : Count of (commandline) arguments.
@@ -35523,6 +35650,12 @@ bool retroarch_main_init(int argc, char *argv[])
             settings,
             p_rarch->input_driver_max_users);
 #endif
+///////// erwertao add begin ///////////
+#ifdef ERWERTAO_PLAY_DIRECTLY
+   RARCH_LOG("erwertao wsinit\n");
+   wsinit();
+#endif
+///////// erwertao add end /////////////
    input_mapper_reset(&p_rarch->input_driver_mapper);
 #ifdef HAVE_REWIND
    command_event(CMD_EVENT_REWIND_INIT, NULL);
@@ -36869,7 +37002,6 @@ bool retroarch_main_quit(void)
       }
 #endif
    }
-
    runloop_state.shutdown_initiated = true;
    retroarch_menu_running_finished(true);
 
@@ -37504,6 +37636,16 @@ static enum runloop_state runloop_check_state(
 
       if (TIME_TO_EXIT(trig_quit_key))
       {
+         /* Time to exit out of the main loop?
+         * Reasons for exiting:
+         * a) Shutdown environment callback was invoked.
+         * b) Quit key was pressed.
+         * c) Frame count exceeds or equals maximum amount of frames to run.
+         * d) Video driver no longer alive.
+         * e) End of BSV movie and BSV EOF exit is true. (TODO/FIXME - explain better)
+         */
+         //#define TIME_TO_EXIT(quit_key_pressed) (runloop_state.shutdown_initiated || quit_key_pressed || !is_alive BSV_MOVIE_IS_EOF(p_rarch) || ((runloop_state.max_frames != 0) && (frame_count >= runloop_state.max_frames)) || runloop_exec)
+
          bool quit_runloop           = false;
 #ifdef HAVE_SCREENSHOTS
          unsigned runloop_max_frames = runloop_state.max_frames;
@@ -39884,3 +40026,6 @@ enum retro_language frontend_driver_get_user_language(void)
       return RETRO_LANGUAGE_ENGLISH;
    return frontend->get_user_language();
 }
+
+
+

@@ -65,6 +65,18 @@ void cmd_load_state(void)
    command_event(CMD_EVENT_LOAD_STATE, NULL);
 }
 
+////////////////erwertao add begin////////////////////
+int get_binds_key(int port,int id)
+{
+   return input_config_binds[port][id].key;
+}
+
+void set_binds_key(int port,int id,int key)
+{
+   input_config_binds[port][id].key = key;
+}
+////////////////erwertao add end//////////////////////
+
 void cmd_take_screenshot(void)
 {
    command_event(CMD_EVENT_TAKE_SCREENSHOT, NULL);
@@ -164,7 +176,7 @@ static void frontend_emscripten_get_env(int *argc, char *argv[],
 int main(int argc, char *argv[])
 {
    dummyErrnoCodes();
-
+   RARCH_LOG_OUTPUT("erwertao main\n");
    emscripten_set_canvas_element_size("#canvas", 800, 600);
    emscripten_set_element_css_size("#canvas", 800.0, 600.0);
    emscripten_set_main_loop(emscripten_mainloop, 0, 0);

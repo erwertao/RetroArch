@@ -3,6 +3,299 @@
  *
  * This provides the basic JavaScript for the RetroArch web player.
  */
+
+////////////erwertao add begin//////////////////
+var RETROK_UNKNOWN        = 0;
+var RETROK_FIRST          = 0;
+var RETROK_BACKSPACE      = 8;
+var RETROK_TAB            = 9;
+var RETROK_CLEAR          = 12;
+var RETROK_RETURN         = 13;
+var RETROK_PAUSE          = 19;
+var RETROK_ESCAPE         = 27;
+var RETROK_SPACE          = 32;
+var RETROK_EXCLAIM        = 33;
+var RETROK_QUOTEDBL       = 34;
+var RETROK_HASH           = 35;
+var RETROK_DOLLAR         = 36;
+var RETROK_AMPERSAND      = 38;
+var RETROK_QUOTE          = 39;
+var RETROK_LEFTPAREN      = 40;
+var RETROK_RIGHTPAREN     = 41;
+var RETROK_ASTERISK       = 42;
+var RETROK_PLUS           = 43;
+var RETROK_COMMA          = 44;
+var RETROK_MINUS          = 45;
+var RETROK_PERIOD         = 46;
+var RETROK_SLASH          = 47;
+var RETROK_0              = 48;
+var RETROK_1              = 49;
+var RETROK_2              = 50;
+var RETROK_3              = 51;
+var RETROK_4              = 52;
+var RETROK_5              = 53;
+var RETROK_6              = 54;
+var RETROK_7              = 55;
+var RETROK_8              = 56;
+var RETROK_9              = 57;
+var RETROK_COLON          = 58;
+var RETROK_SEMICOLON      = 59;
+var RETROK_LESS           = 60;
+var RETROK_EQUALS         = 61;
+var RETROK_GREATER        = 62;
+var RETROK_QUESTION       = 63;
+var RETROK_AT             = 64;
+var RETROK_LEFTBRACKET    = 91;
+var RETROK_BACKSLASH      = 92;
+var RETROK_RIGHTBRACKET   = 93;
+var RETROK_CARET          = 94;
+var RETROK_UNDERSCORE     = 95;
+var RETROK_BACKQUOTE      = 96;
+var RETROK_a              = 97;
+var RETROK_b              = 98;
+var RETROK_c              = 99;
+var RETROK_d              = 100;
+var RETROK_e              = 101;
+var RETROK_f              = 102;
+var RETROK_g              = 103;
+var RETROK_h              = 104;
+var RETROK_i              = 105;
+var RETROK_j              = 106;
+var RETROK_k              = 107;
+var RETROK_l              = 108;
+var RETROK_m              = 109;
+var RETROK_n              = 110;
+var RETROK_o              = 111;
+var RETROK_p              = 112;
+var RETROK_q              = 113;
+var RETROK_r              = 114;
+var RETROK_s              = 115;
+var RETROK_t              = 116;
+var RETROK_u              = 117;
+var RETROK_v              = 118;
+var RETROK_w              = 119;
+var RETROK_x              = 120;
+var RETROK_y              = 121;
+var RETROK_z              = 122;
+var RETROK_LEFTBRACE      = 123;
+var RETROK_BAR            = 124;
+var RETROK_RIGHTBRACE     = 125;
+var RETROK_TILDE          = 126;
+var RETROK_DELETE         = 127;
+
+var RETROK_KP0            = 256;
+var RETROK_KP1            = 257;
+var RETROK_KP2            = 258;
+var RETROK_KP3            = 259;
+var RETROK_KP4            = 260;
+var RETROK_KP5            = 261;
+var RETROK_KP6            = 262;
+var RETROK_KP7            = 263;
+var RETROK_KP8            = 264;
+var RETROK_KP9            = 265;
+var RETROK_KP_PERIOD      = 266;
+var RETROK_KP_DIVIDE      = 267;
+var RETROK_KP_MULTIPLY    = 268;
+var RETROK_KP_MINUS       = 269;
+var RETROK_KP_PLUS        = 270;
+var RETROK_KP_ENTER       = 271;
+var RETROK_KP_EQUALS      = 272;
+
+var RETROK_UP             = 273;
+var RETROK_DOWN           = 274;
+var RETROK_RIGHT          = 275;
+var RETROK_LEFT           = 276;
+var RETROK_INSERT         = 277;
+var RETROK_HOME           = 278;
+var RETROK_END            = 279;
+var RETROK_PAGEUP         = 280;
+var RETROK_PAGEDOWN       = 281;
+
+var RETROK_F1             = 282;
+var RETROK_F2             = 283;
+var RETROK_F3             = 284;
+var RETROK_F4             = 285;
+var RETROK_F5             = 286;
+var RETROK_F6             = 287;
+var RETROK_F7             = 288;
+var RETROK_F8             = 289;
+var RETROK_F9             = 290;
+var RETROK_F10            = 291;
+var RETROK_F11            = 292;
+var RETROK_F12            = 293;
+var RETROK_F13            = 294;
+var RETROK_F14            = 295;
+var RETROK_F15            = 296;
+
+var RETROK_NUMLOCK        = 300;
+var RETROK_CAPSLOCK       = 301;
+var RETROK_SCROLLOCK      = 302;
+var RETROK_RSHIFT         = 303;
+var RETROK_LSHIFT         = 304;
+var RETROK_RCTRL          = 305;
+var RETROK_LCTRL          = 306;
+var RETROK_RALT           = 307;
+var RETROK_LALT           = 308;
+var RETROK_RMETA          = 309;
+var RETROK_LMETA          = 310;
+var RETROK_LSUPER         = 311;
+var RETROK_RSUPER         = 312;
+var RETROK_MODE           = 313;
+var RETROK_COMPOSE        = 314;
+
+var RETROK_HELP           = 315;
+var RETROK_PRINT          = 316;
+var RETROK_SYSREQ         = 317;
+var RETROK_BREAK          = 318;
+var RETROK_MENU           = 319;
+var RETROK_POWER          = 320;
+var RETROK_EURO           = 321;
+var RETROK_UNDO           = 322;
+var RETROK_OEM_102        = 323;
+
+var rwebinput_key_to_code_map =
+{
+   "KeyA": RETROK_a,
+   "KeyB": RETROK_b,
+   "KeyC": RETROK_c,
+   "KeyD": RETROK_d,
+   "KeyE": RETROK_e,
+   "KeyF": RETROK_f,
+   "KeyG": RETROK_g,
+   "KeyH": RETROK_h,
+   "KeyI": RETROK_i,
+   "KeyJ": RETROK_j,
+   "KeyK": RETROK_k,
+   "KeyL": RETROK_l,
+   "KeyM": RETROK_m,
+   "KeyN": RETROK_n,
+   "KeyO": RETROK_o,
+   "KeyP": RETROK_p,
+   "KeyQ": RETROK_q,
+   "KeyR": RETROK_r,
+   "KeyS": RETROK_s,
+   "KeyT": RETROK_t,
+   "KeyU": RETROK_u,
+   "KeyV": RETROK_v,
+   "KeyW": RETROK_w,
+   "KeyX": RETROK_x,
+   "KeyY": RETROK_y,
+   "KeyZ": RETROK_z,
+   "ArrowLeft": RETROK_LEFT,
+   "ArrowRight": RETROK_RIGHT,
+   "ArrowUp": RETROK_UP,
+   "ArrowDown": RETROK_DOWN,
+   "Enter": RETROK_RETURN,
+   "NumpadEnter": RETROK_KP_ENTER,
+   "Tab": RETROK_TAB,
+   "Insert": RETROK_INSERT,
+   "Delete": RETROK_DELETE,
+   "End": RETROK_END,
+   "Home": RETROK_HOME,
+   "ShiftRight": RETROK_RSHIFT,
+   "ShiftLeft": RETROK_LSHIFT,
+   "ControlLeft": RETROK_LCTRL,
+   "AltLeft": RETROK_LALT,
+   "Space": RETROK_SPACE,
+   "Escape": RETROK_ESCAPE,
+   "NumpadAdd": RETROK_KP_PLUS,
+   "NumpadSubtract": RETROK_KP_MINUS,
+   "F1": RETROK_F1,
+   "F2": RETROK_F2,
+   "F3": RETROK_F3,
+   "F4": RETROK_F4,
+   "F5": RETROK_F5,
+   "F6": RETROK_F6,
+   "F7": RETROK_F7,
+   "F8": RETROK_F8,
+   "F9": RETROK_F9,
+   "F10": RETROK_F10,
+   "F11": RETROK_F11,
+   "F12": RETROK_F12,
+   "Digit0": RETROK_0,
+   "Digit1": RETROK_1,
+   "Digit2": RETROK_2,
+   "Digit3": RETROK_3,
+   "Digit4": RETROK_4,
+   "Digit5": RETROK_5,
+   "Digit6": RETROK_6,
+   "Digit7": RETROK_7,
+   "Digit8": RETROK_8,
+   "Digit9": RETROK_9,
+   "PageUp": RETROK_PAGEUP,
+   "PageDown": RETROK_PAGEDOWN,
+   "Numpad0": RETROK_KP0,
+   "Numpad1": RETROK_KP1,
+   "Numpad2": RETROK_KP2,
+   "Numpad3": RETROK_KP3,
+   "Numpad4": RETROK_KP4,
+   "Numpad5": RETROK_KP5,
+   "Numpad6": RETROK_KP6,
+   "Numpad7": RETROK_KP7,
+   "Numpad8": RETROK_KP8,
+   "Numpad9": RETROK_KP9,
+   "Period": RETROK_PERIOD,
+   "CapsLock": RETROK_CAPSLOCK,
+   "NumLock": RETROK_NUMLOCK,
+   "Backspace": RETROK_BACKSPACE,
+   "NumpadMultiply": RETROK_KP_MULTIPLY,
+   "NumpadDivide": RETROK_KP_DIVIDE,
+   "PrintScreen": RETROK_PRINT,
+   "ScrollLock": RETROK_SCROLLOCK,
+   "Backquote": RETROK_BACKQUOTE,
+   "Pause": RETROK_PAUSE,
+   "Quote": RETROK_QUOTE,
+   "Comma": RETROK_COMMA,
+   "Minus": RETROK_MINUS,
+   "Slash": RETROK_SLASH,
+   "Semicolon": RETROK_SEMICOLON,
+   "Equal": RETROK_EQUALS,
+   "BracketLeft": RETROK_LEFTBRACKET,
+   "Backslash": RETROK_BACKSLASH,
+   "BracketRight": RETROK_RIGHTBRACKET,
+   "NumpadDecimal": RETROK_KP_PERIOD,
+   "NumpadEqual": RETROK_KP_EQUALS,
+   "ControlRight": RETROK_RCTRL,
+   "AltRight": RETROK_RALT,
+   "F13": RETROK_F13,
+   "F14": RETROK_F14,
+   "F15": RETROK_F15,
+   "MetaRight": RETROK_RMETA,
+   "MetaLeft": RETROK_LMETA,
+   "Help": RETROK_HELP,
+   "ContextMenu": RETROK_MENU,
+   "Power": RETROK_POWER
+};
+
+var rwebinput_code_to_key_map = new Array();
+
+for(var key in rwebinput_key_to_code_map){
+   rwebinput_code_to_key_map[rwebinput_key_to_code_map[key]] = key
+}
+
+var D_Pad_Up_ID = 4;
+var D_Pad_Down_ID = 5;
+var D_Pad_Left_ID = 6;
+var D_Pad_Right_ID = 7;
+var A_Button_ID = 8;
+var B_Button_ID = 0;
+var X_Button_ID = 9;
+var Y_Button_ID = 1;
+var Select_Button_ID = 2;
+var Start_Button_ID = 3;
+
+
+var arcade_arr = [
+   //global or local: netplay or not
+   //core name
+   //content(rom) path
+   ["global","fbalpha2012_neogeo","/home/web_user/retroarch/userdata/content/downloads/SNK - Neo Geo/kof98.zip"], 
+   ["global","fbalpha2012_neogeo","/home/web_user/retroarch/userdata/content/downloads/SNK - Neo Geo/mslugx.zip"],
+   ["global","fbalpha2012_cps1","/home/web_user/retroarch/userdata/content/downloads/Capcom - CPS1/dino.zip"],
+   ["global","fceumm","/home/web_user/retroarch/userdata/content/downloads/Nintendo - Nintendo Entertainment System/Contra.nes"]
+];
+////////////erwertao add end//////////////////
+
 var BrowserFS = BrowserFS;
 var afs;
 
@@ -74,6 +367,9 @@ function idbfsSyncComplete()
    console.log("WEBPLAYER: idbfs setup successful");
 
    setupFileSystem("browser");
+   ///////erwertao add begin//////////////////////
+   setTimeout(function(){repeat();},200);
+   ///////////erwertao add end///////////////////
    preLoadingComplete();
 }
 
@@ -105,10 +401,15 @@ function setupFileSystem(backend)
    mfs.mount('/home/web_user/retroarch/userdata', afs);
 
    mfs.mount('/home/web_user/retroarch/bundle', xfs1);
-   mfs.mount('/home/web_user/retroarch/userdata/content/downloads', xfs2);
+   mfs.mount('/home/web_user/retroarch/userdata/content/downloads', xfs2); 
    BrowserFS.initialize(mfs);
    var BFS = new BrowserFS.EmscriptenFS();
    FS.mount(BFS, {root: '/home'}, '/home');
+
+   //////erwerao add begin///////
+   mapBiosConf();
+   /////erwertao add end/////////
+
    console.log("WEBPLAYER: " + backend + " filesystem initialization successful");
 }
 
@@ -181,7 +482,12 @@ function uploadData(data,name)
 var Module =
 {
   noInitialRun: true,
-  arguments: ["-v", "--menu"],
+  //arguments: ["-v", "--menu"],//erwertao delete//////
+  arguments: ["-v", "--menu", "--rom", arcade_arr[getArcadeIndex()][2] ], ///erwertao add
+  /*
+      erwertao retroarch implemented a getopt_long function, it is not standard, "--rom=123" or "--rom 123" are not supported, 
+      you have to input "--rom" "123" instead. Check compat_getopt.c
+  */
   preRun: [],
   postRun: [],
   print: function(text)
@@ -212,6 +518,56 @@ function switchStorage(backend) {
    }
 }
 
+//////////////////erwertao add begin////////////////////////////
+function getArcadeIndex() {
+   return Number(window.location.hash.substring(1).split(",")[0])
+}
+function getPlayerIndex() {
+   return Number(window.location.hash.substring(1).split(",")[1])
+}
+function buildFileTree(root,rootPath,basePath,baseURL){
+   for (var name in root._ls) {
+      var node = root._ls[name];
+      if (node.isDir()) {
+         try
+         {
+            FS.createFolder(rootPath,name,true,true);
+         }
+         catch(err)
+         {
+            console.log(err);
+         }
+         buildFileTree(node,rootPath+"/"+name,basePath,baseURL);
+      } else if (node.isFile()) {   
+         var absURL = (rootPath+"/"+name).replace(basePath,baseURL)
+         var xhr = new XMLHttpRequest();
+	      xhr.open('GET', absURL, false);
+	      xhr.send(null);
+         console.log(xhr.responseText);
+         FS.writeFile(rootPath+"/"+name, xhr.responseText ,{ encoding: 'utf8' });
+      }
+   }
+}
+function mapBiosConf() {
+   try
+   {
+      FS.createFolder('/home/web_user/retroarch/userdata/','config',true,true);
+   }
+   catch(err)
+   {
+      console.log(err);
+   }
+
+   var baseURL = "assets/bios_conf/";
+   var xfs3 =  new BrowserFS.FileSystem.XmlHttpRequest(".index-xhr", baseURL);
+   console.log("xxxxxx    ",xfs3);
+   var root = xfs3._index._index["/"];
+   var rootPath = "/home/web_user/retroarch/userdata/config";
+
+   buildFileTree(root,rootPath,rootPath,baseURL);
+}
+//////////////////erwertao add end//////////////////////////////
+
 // When the browser has loaded everything.
 $(function() {
    // Enable all available ToolTips.
@@ -221,6 +577,7 @@ $(function() {
 
    // Allow hiding the top menu.
    $('.showMenu').hide();
+   //$('nav').hide();   //////erwertao add//////
    $('#btnHideMenu, .showMenu').click(function () {
       $('nav').slideToggle('slow');
       $('.showMenu').toggle('slow');
@@ -271,7 +628,10 @@ $(function() {
    // Find which core to load.
    var core = localStorage.getItem("core", core);
    if (!core) {
-      core = 'gambatte';
+      ///////////////erwertao add begin////////////////////
+      //load core by window.location.hash and arcade
+      core = arcade_arr[getArcadeIndex()][1];
+      //////////////erwertao add end/////////////////////
    }
    // Make the core the selected core in the UI.
    var coreTitle = $('#core-selector a[data-core="' + core + '"]').addClass('active').text();
@@ -286,7 +646,43 @@ $(function() {
       $('#lblLocal').addClass('active');
       idbfsInit();
    });
+
+   /////////////erwertao add begin///////////////////
+   init_joy_pad();
+   /////////////erwertao add end////////////////////
  });
+
+///////erwertao add begin///////////////////////
+function init_joy_pad(){
+   joypad = $("#joypad");
+   var children = joypad.children();
+   for (var i=0;i<children.length;i++) {
+      function onFocus(e){
+         e.target.value=rwebinput_code_to_key_map[_get_binds_key(getPlayerIndex(),Number(e.target.id))];
+      }
+      function onKeyDown(e){
+         e.target.value=e.code;
+         _set_binds_key(getPlayerIndex(),Number(e.target.id),rwebinput_key_to_code_map[e.code])
+         e.stopImmediatePropagation();
+         e.target.blur();
+      }
+      var btn = children[i];
+      btn.addEventListener("focus", onFocus,false);
+      btn.addEventListener('keydown', onKeyDown,false)
+      btn.addEventListener('keypress', function(e) {e.stopImmediatePropagation();},false)
+      btn.addEventListener('keyup', function(e) {e.stopImmediatePropagation();},false)
+   }
+}
+
+function repeat(){
+   if(Module["asm"]){
+      startRetroArch();
+   } else {
+      setTimeout(function(){repeat();},200);
+   }
+}
+
+/////////////////////erwertao add end//////////////// maybe we need a better way to determin whether asm is loaded
 
 function keyPress(k)
 {
