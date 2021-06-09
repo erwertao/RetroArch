@@ -270,7 +270,7 @@ var rwebinput_key_to_code_map =
 var rwebinput_code_to_key_map = new Array();
 
 for(var key in rwebinput_key_to_code_map){
-   rwebinput_code_to_key_map[rwebinput_key_to_code_map[key]] = key
+   rwebinput_code_to_key_map[rwebinput_key_to_code_map[key]] = key;
 }
 
 var D_Pad_Up_ID = 4;
@@ -286,13 +286,14 @@ var Start_Button_ID = 3;
 
 
 var arcade_arr = [
-   //global or local: netplay or not
    //core name
    //content(rom) path
-   ["global","fbalpha2012_neogeo","/home/web_user/retroarch/userdata/content/downloads/SNK - Neo Geo/kof98.zip"], 
-   ["global","fbalpha2012_neogeo","/home/web_user/retroarch/userdata/content/downloads/SNK - Neo Geo/mslugx.zip"],
-   ["global","fbalpha2012_cps1","/home/web_user/retroarch/userdata/content/downloads/Capcom - CPS1/dino.zip"],
-   ["global","fceumm","/home/web_user/retroarch/userdata/content/downloads/Nintendo - Nintendo Entertainment System/Contra.nes"]
+   //max player num supported by this game
+   //joypad type
+   ["fbalpha2012_neogeo","/home/web_user/retroarch/userdata/content/downloads/SNK - Neo Geo/kof98.zip",2,"neogeo"], 
+   ["fbalpha2012_neogeo","/home/web_user/retroarch/userdata/content/downloads/SNK - Neo Geo/mslugx.zip",2,"neogeo"],
+   ["fbalpha2012_cps1","/home/web_user/retroarch/userdata/content/downloads/Capcom - CPS1/dino.zip",3,"cps"],
+   ["fceumm","/home/web_user/retroarch/userdata/content/downloads/Nintendo - Nintendo Entertainment System/Contra.nes",2,"nes"]
 ];
 ////////////erwertao add end//////////////////
 
@@ -483,7 +484,7 @@ var Module =
 {
   noInitialRun: true,
   //arguments: ["-v", "--menu"],//erwertao delete//////
-  arguments: ["-v", "--menu", "--rom", arcade_arr[getArcadeIndex()][2] ], ///erwertao add
+  arguments: ["-v", "--menu", "--rom", arcade_arr[getArcadeIndex()][1] ], ///erwertao add
   /*
       erwertao retroarch implemented a getopt_long function, it is not standard, "--rom=123" or "--rom 123" are not supported, 
       you have to input "--rom" "123" instead. Check compat_getopt.c
@@ -520,10 +521,13 @@ function switchStorage(backend) {
 
 //////////////////erwertao add begin////////////////////////////
 function getArcadeIndex() {
-   return Number(window.location.hash.substring(1).split(",")[0])
+   return Number(window.location.hash.substring(1).split(",")[0]) //the index to arcade_arr
 }
 function getPlayerIndex() {
-   return Number(window.location.hash.substring(1).split(",")[1])
+   return Number(window.location.hash.substring(1).split(",")[1]) //valid when netplay, index of player
+}
+function getPlayType() {
+   return Number(window.location.hash.substring(1).split(",")[2]) //0 netplay, 1 local play
 }
 function buildFileTree(root,rootPath,basePath,baseURL){
    for (var name in root._ls) {
@@ -543,7 +547,6 @@ function buildFileTree(root,rootPath,basePath,baseURL){
          var xhr = new XMLHttpRequest();
 	      xhr.open('GET', absURL, false);
 	      xhr.send(null);
-         console.log(xhr.responseText);
          FS.writeFile(rootPath+"/"+name, xhr.responseText ,{ encoding: 'utf8' });
       }
    }
@@ -560,7 +563,6 @@ function mapBiosConf() {
 
    var baseURL = "assets/bios_conf/";
    var xfs3 =  new BrowserFS.FileSystem.XmlHttpRequest(".index-xhr", baseURL);
-   console.log("xxxxxx    ",xfs3);
    var root = xfs3._index._index["/"];
    var rootPath = "/home/web_user/retroarch/userdata/config";
 
@@ -630,7 +632,7 @@ $(function() {
    if (!core) {
       ///////////////erwertao add begin////////////////////
       //load core by window.location.hash and arcade
-      core = arcade_arr[getArcadeIndex()][1];
+      core = arcade_arr[getArcadeIndex()][0];
       //////////////erwertao add end/////////////////////
    }
    // Make the core the selected core in the UI.
@@ -653,25 +655,85 @@ $(function() {
  });
 
 ///////erwertao add begin///////////////////////
-function init_joy_pad(){
-   joypad = $("#joypad");
-   var children = joypad.children();
-   for (var i=0;i<children.length;i++) {
-      function onFocus(e){
-         e.target.value=rwebinput_code_to_key_map[_get_binds_key(getPlayerIndex(),Number(e.target.id))];
+var joy_pad_init_progress = 0;
+function next_joy_pad(){
+   var playType = getPlayType();
+   if (playType==0){
+      //net play
+      if (joy_pad_init_progress==1){
+         return; //net play only need init one pad.
       }
-      function onKeyDown(e){
-         e.target.value=e.code;
-         _set_binds_key(getPlayerIndex(),Number(e.target.id),rwebinput_key_to_code_map[e.code])
-         e.stopImmediatePropagation();
-         e.target.blur();
+      var joypads = $("#joypads");
+      var arcinfo = arcade_arr[getArcadeIndex()];
+      var joypad_type = arcinfo[3];
+      var pidx = getPlayerIndex();
+
+      var joypad=$('<div style="width:420px;height:200px;background: url(/media/'+joypad_type+'.png);background-size:100% 100%;background-repeat:no-repeat;background-color:black;display:inline-block;position:relative;"></div>');
+      joypad.attr('id','joypad_'+pidx);
+      joypad.appendTo(joypads);
+      joypad.load("/joypads/"+joypad_type+".html",
+                  null,
+                  function(rsp,st,xhr){
+                     var btns = joypad.children()
+                     for (var i=0;i<btns.length;i++){
+                        var btn=btns[i];
+                        btn.setAttribute("pidx",""+pidx);
+                        btn.addEventListener("focus", onFocus,false);
+                        btn.addEventListener('keydown', onKeyDown,false);
+                        btn.addEventListener('keypress', function(e) {e.stopImmediatePropagation();},false);
+                        btn.addEventListener('keyup', function(e) {e.stopImmediatePropagation();},false);
+                     }
+                     joy_pad_init_progress += 1;
+                     next_joy_pad();
+                  }
+      );
+   } else {
+      //local play
+      var joypads = $("#joypads");
+      var arcinfo = arcade_arr[getArcadeIndex()];
+      var player_num = arcinfo[2];
+      if (joy_pad_init_progress==player_num){
+         return;
       }
-      var btn = children[i];
-      btn.addEventListener("focus", onFocus,false);
-      btn.addEventListener('keydown', onKeyDown,false)
-      btn.addEventListener('keypress', function(e) {e.stopImmediatePropagation();},false)
-      btn.addEventListener('keyup', function(e) {e.stopImmediatePropagation();},false)
+      var joypad_type = arcinfo[3];
+      var joypad=$('<div style="width:420px;height:200px;background: url(/media/'+joypad_type+'.png);background-size:100% 100%;background-repeat:no-repeat;background-color:black;display:inline-block;position:relative;"></div>');
+      joypad.attr('id','joypad_'+joy_pad_init_progress);
+      joypad.appendTo(joypads);
+      joypad.load("/joypads/"+joypad_type+".html",
+               null,
+               function(rsp,st,xhr){
+                  var btns = joypad.children()
+                  for (var i=0;i<btns.length;i++){
+                     var btn=btns[i];
+                     btn.setAttribute("pidx",""+joy_pad_init_progress);
+                     btn.addEventListener("focus", onFocus,false);
+                     btn.addEventListener('keydown', onKeyDown,false);
+                     btn.addEventListener('keypress', function(e) {e.stopImmediatePropagation();},false);
+                     btn.addEventListener('keyup', function(e) {e.stopImmediatePropagation();},false);
+                  }
+                  joy_pad_init_progress += 1;
+                  next_joy_pad();
+               }
+      );
    }
+
+   function onFocus(e){
+      var pidx = Number(e.target.getAttribute("pidx"));
+      var bidx = Number(e.target.getAttribute("bidx"));
+      e.target.value=rwebinput_code_to_key_map[_get_binds_key(pidx,bidx)];
+   }
+   function onKeyDown(e){
+      e.target.value=e.code;
+      var pidx = Number(e.target.getAttribute("pidx"));
+      var bidx = Number(e.target.getAttribute("bidx"));
+      _set_binds_key(pidx,bidx,rwebinput_key_to_code_map[e.code]);
+      e.stopImmediatePropagation();
+      e.target.blur();
+   }
+}
+
+function init_joy_pad(){
+   next_joy_pad();
 }
 
 function repeat(){
