@@ -655,41 +655,75 @@ $(function() {
  });
 
 ///////erwertao add begin///////////////////////
-var joy_pad_init_progress = 0;
 function next_joy_pad(){
    var playType = getPlayType();
    if (playType==0){
       //net play
-      if (joy_pad_init_progress==1){
-         return; //net play only need init one pad.
-      }
-      var joypads = $("#joypads");
       var arcinfo = arcade_arr[getArcadeIndex()];
       var joypad_type = arcinfo[3];
-      var pidx = getPlayerIndex();
-
-      var joypad=$('<div style="width:420px;height:200px;background: url(/media/'+joypad_type+'.png);background-size:100% 100%;background-repeat:no-repeat;background-color:black;display:inline-block;position:relative;"></div>');
-      joypad.attr('id','joypad_'+pidx);
-      joypad.appendTo(joypads);
-      joypad.load("/joypads/"+joypad_type+".html",
-                  null,
-                  function(rsp,st,xhr){
-                     var btns = joypad.children()
-                     for (var i=0;i<btns.length;i++){
-                        var btn=btns[i];
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {//服务器返回值的处理函数，此处使用匿名函数进行实现
+         if (xhr.readyState == 4 && xhr.status == 200) {//
+               var responseText = xhr.responseText;
+               var joypads = $("#joypads");
+               var pidx = getPlayerIndex();
+               var joypad=$(responseText);
+               joypad.attr('id','joypad_'+pidx);
+               joypad.appendTo(joypads);
+               var btns = joypad.children()
+               for (var i=0;i<btns.length;i++){
+                  var btn=btns[i];
+                  if (btn.tagName=="H1"){
+                     btn.textContent = (pidx+1)+"P";
+                  } else if (btn.tagName=="INPUT"){
+                     btn.setAttribute("pidx",""+pidx);
+                     btn.addEventListener("focus", onFocus,false);
+                     btn.addEventListener('keydown', onKeyDown,false);
+                     btn.addEventListener('keypress', function(e) {e.stopImmediatePropagation();},false);
+                     btn.addEventListener('keyup', function(e) {e.stopImmediatePropagation();},false);
+                  }
+               }
+         }
+      };
+      xhr.open("GET", "/joypads/"+joypad_type+".html", true);
+      xhr.send(null)
+   } else {
+      //local play
+      var arcinfo = arcade_arr[getArcadeIndex()];
+      var joypad_type = arcinfo[3];
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {//服务器返回值的处理函数，此处使用匿名函数进行实现
+         if (xhr.readyState == 4 && xhr.status == 200) {//
+               var responseText = xhr.responseText;
+               var arcinfo = arcade_arr[getArcadeIndex()];
+               var player_num = arcinfo[2];
+               var joypads = $("#joypads");
+               for (var pidx=0;pidx<player_num;pidx++){
+                  var joypad=$(responseText);
+                  joypad.attr('id','joypad_'+pidx);
+                  joypad.appendTo(joypads);
+                  var btns = joypad.children()
+                  for (var i=0;i<btns.length;i++){
+                     var btn=btns[i];
+                     if (btn.tagName=="H1"){
+                        btn.textContent = (pidx+1)+"P";
+                     } else if (btn.tagName=="INPUT"){
                         btn.setAttribute("pidx",""+pidx);
                         btn.addEventListener("focus", onFocus,false);
                         btn.addEventListener('keydown', onKeyDown,false);
                         btn.addEventListener('keypress', function(e) {e.stopImmediatePropagation();},false);
                         btn.addEventListener('keyup', function(e) {e.stopImmediatePropagation();},false);
                      }
-                     joy_pad_init_progress += 1;
-                     next_joy_pad();
                   }
-      );
-   } else {
-      //local play
-      var joypads = $("#joypads");
+               }
+         }
+      };
+      xhr.open("GET", "/joypads/"+joypad_type+".html", true);
+      xhr.send(null)
+
+
+
+      /*var joypads = $("#joypads");
       var arcinfo = arcade_arr[getArcadeIndex()];
       var player_num = arcinfo[2];
       if (joy_pad_init_progress==player_num){
@@ -714,7 +748,7 @@ function next_joy_pad(){
                   joy_pad_init_progress += 1;
                   next_joy_pad();
                }
-      );
+      );*/
    }
 
    function onFocus(e){
