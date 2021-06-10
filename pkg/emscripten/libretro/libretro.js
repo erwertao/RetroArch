@@ -368,9 +368,6 @@ function idbfsSyncComplete()
    console.log("WEBPLAYER: idbfs setup successful");
 
    setupFileSystem("browser");
-   ///////erwertao add begin//////////////////////
-   setTimeout(function(){repeat();},200);
-   ///////////erwertao add end///////////////////
    preLoadingComplete();
 }
 
@@ -380,9 +377,12 @@ function preLoadingComplete()
    $('.webplayer-preview').addClass('loaded').click(function () {
       startRetroArch();
       return false;
-  });
-  document.getElementById("btnRun").disabled = false;
-  $('#btnRun').removeClass('disabled');
+   });
+   document.getElementById("btnRun").disabled = false;
+   $('#btnRun').removeClass('disabled');
+   ///////erwertao add begin//////////////////////
+   setTimeout(function(){repeat();},200);
+   ///////////erwertao add end///////////////////
 }
 
 function setupFileSystem(backend)
@@ -392,8 +392,8 @@ function setupFileSystem(backend)
    var mfs =  new BrowserFS.FileSystem.MountableFileSystem();
 
    /* create an XmlHttpRequest filesystem for the bundled data */
-   var xfs1 =  new BrowserFS.FileSystem.XmlHttpRequest
-      (".index-xhr", "assets/frontend/bundle/");
+   //var xfs1 =  new BrowserFS.FileSystem.XmlHttpRequest(".index-xhr", "assets/frontend/bundle/");  ///erwertao delete --- the bundle is too big and we don't need it.
+
    /* create an XmlHttpRequest filesystem for core assets */
    var xfs2 =  new BrowserFS.FileSystem.XmlHttpRequest
       (".index-xhr", "assets/cores/");
@@ -401,7 +401,7 @@ function setupFileSystem(backend)
    console.log("WEBPLAYER: initializing filesystem: " + backend);
    mfs.mount('/home/web_user/retroarch/userdata', afs);
 
-   mfs.mount('/home/web_user/retroarch/bundle', xfs1);
+   //mfs.mount('/home/web_user/retroarch/bundle', xfs1);  ///erwertao delete --- the bundle is too big and we don't need it.
    mfs.mount('/home/web_user/retroarch/userdata/content/downloads', xfs2); 
    BrowserFS.initialize(mfs);
    var BFS = new BrowserFS.EmscriptenFS();
@@ -484,7 +484,7 @@ var Module =
 {
   noInitialRun: true,
   //arguments: ["-v", "--menu"],//erwertao delete//////
-  arguments: ["-v", "--menu", "--rom", arcade_arr[getArcadeIndex()][1] ], ///erwertao add
+  arguments: ["--menu", "--rom", arcade_arr[getArcadeIndex()][1] ], ///erwertao add
   /*
       erwertao retroarch implemented a getopt_long function, it is not standard, "--rom=123" or "--rom 123" are not supported, 
       you have to input "--rom" "123" instead. Check compat_getopt.c
