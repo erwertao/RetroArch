@@ -273,16 +273,22 @@ for(var key in rwebinput_key_to_code_map){
    rwebinput_code_to_key_map[rwebinput_key_to_code_map[key]] = key;
 }
 
-var D_Pad_Up_ID = 4;
-var D_Pad_Down_ID = 5;
-var D_Pad_Left_ID = 6;
-var D_Pad_Right_ID = 7;
-var A_Button_ID = 8;
-var B_Button_ID = 0;
-var X_Button_ID = 9;
-var Y_Button_ID = 1;
-var Select_Button_ID = 2;
-var Start_Button_ID = 3;
+var RETRO_DEVICE_ID_JOYPAD_B        = 0;
+var RETRO_DEVICE_ID_JOYPAD_Y        = 1;
+var RETRO_DEVICE_ID_JOYPAD_SELECT   = 2;
+var RETRO_DEVICE_ID_JOYPAD_START    = 3;
+var RETRO_DEVICE_ID_JOYPAD_UP       = 4;
+var RETRO_DEVICE_ID_JOYPAD_DOWN     = 5;
+var RETRO_DEVICE_ID_JOYPAD_LEFT     = 6;
+var RETRO_DEVICE_ID_JOYPAD_RIGHT    = 7;
+var RETRO_DEVICE_ID_JOYPAD_A        = 8;
+var RETRO_DEVICE_ID_JOYPAD_X        = 9;
+var RETRO_DEVICE_ID_JOYPAD_L       = 10;
+var RETRO_DEVICE_ID_JOYPAD_R       = 11;
+var RETRO_DEVICE_ID_JOYPAD_L2      = 12;
+var RETRO_DEVICE_ID_JOYPAD_R2      = 13;
+var RETRO_DEVICE_ID_JOYPAD_L3      = 14;
+var RETRO_DEVICE_ID_JOYPAD_R3      = 15;
 
 
 var arcade_arr = [
@@ -293,7 +299,8 @@ var arcade_arr = [
    ["fbalpha2012_neogeo","/home/web_user/retroarch/userdata/content/downloads/SNK - Neo Geo/kof98.zip",2,"neogeo"], 
    ["fbalpha2012_neogeo","/home/web_user/retroarch/userdata/content/downloads/SNK - Neo Geo/mslugx.zip",2,"neogeo"],
    ["fbalpha2012_cps1","/home/web_user/retroarch/userdata/content/downloads/Capcom - CPS1/dino.zip",3,"cps"],
-   ["fceumm","/home/web_user/retroarch/userdata/content/downloads/Nintendo - Nintendo Entertainment System/Contra.nes",2,"nes"]
+   ["fceumm","/home/web_user/retroarch/userdata/content/downloads/Nintendo - Nintendo Entertainment System/Contra.nes",2,"nes"],
+   ["fbalpha2012_cps1","/home/web_user/retroarch/userdata/content/downloads/Capcom - CPS1/sf2ce.zip",2,"cps"]
 ];
 ////////////erwertao add end//////////////////
 
@@ -719,36 +726,7 @@ function next_joy_pad(){
          }
       };
       xhr.open("GET", "/joypads/"+joypad_type+".html", true);
-      xhr.send(null)
-
-
-
-      /*var joypads = $("#joypads");
-      var arcinfo = arcade_arr[getArcadeIndex()];
-      var player_num = arcinfo[2];
-      if (joy_pad_init_progress==player_num){
-         return;
-      }
-      var joypad_type = arcinfo[3];
-      var joypad=$('<div style="width:420px;height:200px;background: url(/media/'+joypad_type+'.png);background-size:100% 100%;background-repeat:no-repeat;background-color:black;display:inline-block;position:relative;"></div>');
-      joypad.attr('id','joypad_'+joy_pad_init_progress);
-      joypad.appendTo(joypads);
-      joypad.load("/joypads/"+joypad_type+".html",
-               null,
-               function(rsp,st,xhr){
-                  var btns = joypad.children()
-                  for (var i=0;i<btns.length;i++){
-                     var btn=btns[i];
-                     btn.setAttribute("pidx",""+joy_pad_init_progress);
-                     btn.addEventListener("focus", onFocus,false);
-                     btn.addEventListener('keydown', onKeyDown,false);
-                     btn.addEventListener('keypress', function(e) {e.stopImmediatePropagation();},false);
-                     btn.addEventListener('keyup', function(e) {e.stopImmediatePropagation();},false);
-                  }
-                  joy_pad_init_progress += 1;
-                  next_joy_pad();
-               }
-      );*/
+      xhr.send(null);
    }
 
    function onFocus(e){
