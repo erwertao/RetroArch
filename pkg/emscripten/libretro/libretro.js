@@ -385,8 +385,6 @@ function preLoadingComplete()
       startRetroArch();
       return false;
    });
-   document.getElementById("btnRun").disabled = false;
-   $('#btnRun').removeClass('disabled');
    ///////erwertao add begin//////////////////////
    setTimeout(function(){repeat();},200);
    ///////////erwertao add end///////////////////
@@ -435,48 +433,16 @@ function startRetroArch()
 {
    $('.webplayer').show();
    $('.webplayer-preview').hide();
-   document.getElementById("btnRun").disabled = true;
 
    $('#btnFullscreen').removeClass('disabled');
-   $('#btnMenu').removeClass('disabled');
-   $('#btnAdd').removeClass('disabled');
-   $('#btnRom').removeClass('disabled');
 
-   document.getElementById("btnAdd").disabled = false;
-   document.getElementById("btnRom").disabled = false;
-   document.getElementById("btnMenu").disabled = false;
    document.getElementById("btnFullscreen").disabled = false;
 
    Module['callMain'](Module['arguments']);
    document.getElementById('canvas').focus();
 }
 
-function selectFiles(files)
-{
-   $('#btnAdd').addClass('disabled');
-   $('#icnAdd').removeClass('fa-plus');
-   $('#icnAdd').addClass('fa-spinner spinning');
-   var count = files.length;
-
-   for (var i = 0; i < count; i++)
-   {
-      filereader = new FileReader();
-      filereader.file_name = files[i].name;
-      filereader.readAsArrayBuffer(files[i]);
-      filereader.onload = function(){uploadData(this.result, this.file_name)};
-      filereader.onloadend = function(evt)
-      {
-         console.log("WEBPLAYER: file: " + this.file_name + " upload complete");
-         if (evt.target.readyState == FileReader.DONE)
-         {
-            $('#btnAdd').removeClass('disabled');
-            $('#icnAdd').removeClass('fa-spinner spinning');
-            $('#icnAdd').addClass('fa-plus');
-         }
-       }
-   }
-}
-
+/*
 function uploadData(data,name)
 {
    var dataView = new Uint8Array(data);
@@ -486,6 +452,7 @@ function uploadData(data,name)
    FS.writeFile('/home/web_user/retroarch/userdata/content/' + name, data ,{ encoding: 'binary' });
    FS.unlink(name);
 }
+*/
 
 var Module =
 {
@@ -514,10 +481,7 @@ var Module =
   }
 };
 
-function switchCore(corename) {
-   localStorage.setItem("core", corename);
-}
-
+/*
 function switchStorage(backend) {
    if (backend != localStorage.getItem("backend"))
    {
@@ -525,6 +489,7 @@ function switchStorage(backend) {
       location.reload();
    }
 }
+*/
 
 //////////////////erwertao add begin////////////////////////////
 function getArcadeIndex() {
@@ -585,7 +550,7 @@ $(function() {
    });
 
    // Allow hiding the top menu.
-   $('.showMenu').hide();
+   //$('.showMenu').hide();   //erwertao delete
    //$('nav').hide();   //////erwertao add//////
    $('#btnHideMenu, .showMenu').click(function () {
       $('nav').slideToggle('slow');
@@ -628,23 +593,18 @@ $(function() {
     }
   });
 
-   // Switch the core when selecting one.
-   $('#core-selector a').click(function () {
-      var coreChoice = $(this).data('core');
-      switchCore(coreChoice);
-   });
-
    // Find which core to load.
+   /* erwertao delete
    var core = localStorage.getItem("core", core);
    if (!core) {
-      ///////////////erwertao add begin////////////////////
-      //load core by window.location.hash and arcade
-      core = arcade_arr[getArcadeIndex()][0];
-      //////////////erwertao add end/////////////////////
+      core = 'gambatte';
    }
-   // Make the core the selected core in the UI.
-   var coreTitle = $('#core-selector a[data-core="' + core + '"]').addClass('active').text();
-   $('#dropdownMenu1').text(coreTitle);
+   */
+
+   ///////////////erwertao add begin////////////////////
+   //load core by window.location.hash and arcade
+   var core = arcade_arr[getArcadeIndex()][0];
+   //////////////erwertao add end/////////////////////
 
    // Load the Core's related JavaScript.
    $.getScript(core + '_libretro.js', function ()
@@ -758,6 +718,7 @@ function repeat(){
 
 /////////////////////erwertao add end//////////////// maybe we need a better way to determin whether asm is loaded
 
+/*
 function keyPress(k)
 {
    kp(k, "keydown");
@@ -770,3 +731,4 @@ kp = function(k, event) {
    document.dispatchEvent(oEvent);
    document.getElementById('canvas').focus();
 }
+*/
