@@ -1,4 +1,4 @@
 *_libretro.js
 *_libretro.js.mem
 !/libretro/assets
-/libretro/assets/cores/*/*
+/libretro/assets/roms/*/*

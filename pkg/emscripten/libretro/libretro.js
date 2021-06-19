@@ -290,17 +290,20 @@ var RETRO_DEVICE_ID_JOYPAD_R2      = 13;
 var RETRO_DEVICE_ID_JOYPAD_L3      = 14;
 var RETRO_DEVICE_ID_JOYPAD_R3      = 15;
 
-
+var rom_parent_url = "/assets/roms";
+//var rom_parent_dir = "/home/web_user/retroarch/userdata/content/downloads";
+var user_data_dir = "/home/web_user/retroarch/userdata";
+var rom_parent_dir = user_data_dir + "/roms";
 var arcade_arr = [
    //core name
    //content(rom) path
    //max player num supported by this game
    //joypad type
-   ["fbalpha2012_neogeo","/home/web_user/retroarch/userdata/content/downloads/SNK - Neo Geo/kof98.zip",2,"neogeo"], 
-   ["fbalpha2012_neogeo","/home/web_user/retroarch/userdata/content/downloads/SNK - Neo Geo/mslugx.zip",2,"neogeo"],
-   ["fbalpha2012_cps1","/home/web_user/retroarch/userdata/content/downloads/Capcom - CPS1/dino.zip",3,"cps"],
-   ["fceumm","/home/web_user/retroarch/userdata/content/downloads/Nintendo - Nintendo Entertainment System/Contra.nes",2,"nes"],
-   ["fbalpha2012_cps1","/home/web_user/retroarch/userdata/content/downloads/Capcom - CPS1/sf2ce.zip",2,"cps"]
+   ["fbalpha2012_neogeo","/SNK - Neo Geo/kof98.zip",2,"neogeo"], 
+   ["fbalpha2012_neogeo","/SNK - Neo Geo/mslugx.zip",2,"neogeo"],
+   ["fbalpha2012_cps1","/Capcom - CPS1/dino.zip",3,"cps"],
+   ["fceumm","/Nintendo - Nintendo Entertainment System/Contra.nes",2,"nes"],
+   ["fbalpha2012_cps1","/Capcom - CPS1/sf2ce.zip",2,"cps"]
 ];
 ////////////erwertao add end//////////////////
 
@@ -381,12 +384,48 @@ function idbfsSyncComplete()
 function preLoadingComplete()
 {
    /* Make the Preview image clickable to start RetroArch. */
-   $('.webplayer-preview').addClass('loaded').click(function () {
+   /*$('.webplayer-preview').addClass('loaded').click(function () {
       startRetroArch();
       return false;
-   });
+   });*////// erwertao delete ------ we still need to load rom, this really take time, still can not show the real screen.
    ///////erwertao add begin//////////////////////
-   setTimeout(function(){repeat();},200);
+   // load rom from remote
+   var rom_url = rom_parent_url + arcade_arr[getArcadeIndex()][1]; ///////////////////////todo
+   var req = new XMLHttpRequest();
+   req.open("GET", rom_url, true);
+   //监听进度事件
+   req.addEventListener("progress", function (evt) {
+         if (evt.lengthComputable) {
+            var percentComplete = evt.loaded / evt.total;
+            $("#curtain").text("rom loading: " + percentComplete*100+"%");
+         }
+   }, false);
+
+   req.responseType = "blob";
+   req.onreadystatechange = function () {
+         if (req.readyState === 4 && req.status === 200) {
+            var reader = new FileReader();
+            reader.onload = function() 
+            {
+               var buf = new Uint8Array(this.result);
+               //build the content folder
+               try
+               {
+                  FS.createFolder(rom_parent_dir,arcade_arr[getArcadeIndex()][1].split("/")[1],true,true);
+               }
+               catch(err)
+               {
+                  //console.log(err);
+               }
+               FS.writeFile( rom_parent_dir + arcade_arr[getArcadeIndex()][1], buf ,{ encoding: 'binary' });
+               //$('.webplayer-preview').addClass('loaded');      //erwertao delete
+               $("#curtain").hide();
+               setTimeout(function(){repeat();},200);
+            }
+            reader.readAsArrayBuffer(req.response);
+         }
+   };
+   req.send();
    ///////////erwertao add end///////////////////
 }
 
@@ -400,19 +439,19 @@ function setupFileSystem(backend)
    //var xfs1 =  new BrowserFS.FileSystem.XmlHttpRequest(".index-xhr", "assets/frontend/bundle/");  ///erwertao delete --- the bundle is too big and we don't need it.
 
    /* create an XmlHttpRequest filesystem for core assets */
-   var xfs2 =  new BrowserFS.FileSystem.XmlHttpRequest
-      (".index-xhr", "assets/cores/");
+   //var xfs2 =  new BrowserFS.FileSystem.XmlHttpRequest(".index-xhr", "assets/cores/");  //erwertao delete
 
    console.log("WEBPLAYER: initializing filesystem: " + backend);
    mfs.mount('/home/web_user/retroarch/userdata', afs);
 
    //mfs.mount('/home/web_user/retroarch/bundle', xfs1);  ///erwertao delete --- the bundle is too big and we don't need it.
-   mfs.mount('/home/web_user/retroarch/userdata/content/downloads', xfs2); 
+   //mfs.mount('/home/web_user/retroarch/userdata/content/downloads', xfs2);  //erwertao delete
    BrowserFS.initialize(mfs);
    var BFS = new BrowserFS.EmscriptenFS();
    FS.mount(BFS, {root: '/home'}, '/home');
 
    //////erwerao add begin///////
+   mapRoms();
    mapBiosConf();
    /////erwertao add end/////////
 
@@ -432,7 +471,7 @@ function getParam(name) {
 function startRetroArch()
 {
    $('.webplayer').show();
-   $('.webplayer-preview').hide();
+   //$('.webplayer-preview').hide();  //erwertao delete////////
 
    $('#btnFullscreen').removeClass('disabled');
 
@@ -458,7 +497,7 @@ var Module =
 {
   noInitialRun: true,
   //arguments: ["-v", "--menu"],//erwertao delete//////
-  arguments: ["--menu", "--rom", arcade_arr[getArcadeIndex()][1] ], ///erwertao add
+  arguments: ["--menu", "--rom", rom_parent_dir + arcade_arr[getArcadeIndex()][1] ], ///erwertao add
   /*
       erwertao retroarch implemented a getopt_long function, it is not standard, "--rom=123" or "--rom 123" are not supported, 
       you have to input "--rom" "123" instead. Check compat_getopt.c
@@ -523,14 +562,24 @@ function buildFileTree(root,rootPath,basePath,baseURL){
       }
    }
 }
-function mapBiosConf() {
+function mapRoms() {
    try
    {
-      FS.createFolder('/home/web_user/retroarch/userdata/','config',true,true);
+      FS.createFolder(user_data_dir,'roms',true,true);
    }
    catch(err)
    {
-      console.log(err);
+      //console.log(err);
+   }
+}
+function mapBiosConf() {
+   try
+   {
+      FS.createFolder(user_data_dir,'config',true,true);
+   }
+   catch(err)
+   {
+      //console.log(err);
    }
 
    var baseURL = "assets/bios_conf/";

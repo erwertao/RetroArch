@@ -84,13 +84,17 @@
    </nav>
    <div class="bg-inverse webplayer-container">
       <div class="webplayer_border text-xs-center" id="canvas_div">
-          <div class="showMenu">
-             <button type="button" class="btn btn-link">
-                <span class="fa fa-chevron-down" id="icnShowMenu"></span> <span class="sr-only">Show Top Navigation</span>
-             </button>
-          </div>
-          <canvas class="webplayer" id="canvas" tabindex="1" oncontextmenu="event.preventDefault()" style="display: none"></canvas>
-          <img class="webplayer-preview img-fluid" src="media/canvas.png" width="960px" height="720px" alt="RetroArch Logo">
+         <div class="showMenu">
+            <button type="button" class="btn btn-link">
+               <span class="fa fa-chevron-down" id="icnShowMenu"></span> <span class="sr-only">Show Top Navigation</span>
+            </button>
+         </div>
+         <canvas class="webplayer" id="canvas" tabindex="1" oncontextmenu="event.preventDefault()" style="display: none"></canvas>
+         <!--<img class="webplayer-preview img-fluid" src="media/canvas.png" width="960px" height="720px" alt="RetroArch Logo">-->
+         <!--<div id="curtain" style="text-align:center; background-color: black; width:960px; height:720px; display:block; margin: 0 auto;">
+            <p id="hint" style="width: 100%;height: 720px;display: block;line-height: 720px;text-align: center; color:white">哈哈哈...</p>
+         </div>-->
+         <p id="curtain" style="width: 960px;height: 720px;display: block;line-height: 720px;text-align: center; color:white; background-color: black; display:block; margin: 0 auto; cursor: wait; opacity: 0.6; transition: all 0.8s; -webkit-animation: loading 0.8s ease-in-out infinite alternate; -moz-animation: loading 0.8s ease-in-out infinite alternate; animation: loading 0.8s ease-in-out infinite alternate; font-size:150%;font-weight: bold;">首次加载较慢, 请耐心等待...</p>
       </div>
    </div>
    <div id="joypads" style="text-align:center;">
@@ -99,7 +103,7 @@
    <script src="/libs/rawgit.com/jeresig/jquery.hotkeys/master/jquery.hotkeys.js"></script>
    <script src="/libs/cdnjs.cloudflare.com/ajax/libs/tether/1.3.4/js/tether.min.js"></script>
    <script src="/libs/cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.3/js/bootstrap.min.js"></script>
-   <script src="browserfs.min.js"></script>
+   <script src="browserfs.min.js"></script> <!--browserfs 6.1-->
    <script src="libretro.js"></script>
 </body>
 </html>
