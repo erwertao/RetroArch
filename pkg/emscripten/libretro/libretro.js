@@ -419,7 +419,6 @@ function preLoadingComplete()
                }
                FS.writeFile( rom_parent_dir + arcade_arr[getArcadeIndex()][1], buf ,{ encoding: 'binary' });
                //$('.webplayer-preview').addClass('loaded');      //erwertao delete
-               $("#curtain").hide();
                setTimeout(function(){repeat();},200);
             }
             reader.readAsArrayBuffer(req.response);
@@ -472,6 +471,7 @@ function startRetroArch()
 {
    $('.webplayer').show();
    //$('.webplayer-preview').hide();  //erwertao delete////////
+   $("#curtain").hide();
 
    $('#btnFullscreen').removeClass('disabled');
 
