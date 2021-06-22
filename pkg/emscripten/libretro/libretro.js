@@ -389,6 +389,7 @@ function preLoadingComplete()
       return false;
    });*////// erwertao delete ------ we still need to load rom, this really take time, still can not show the real screen.
    ///////erwertao add begin//////////////////////
+   load_binds();
    // load rom from remote
    var rom_url = rom_parent_url + arcade_arr[getArcadeIndex()][1]; ///////////////////////todo
    var req = new XMLHttpRequest();
@@ -396,8 +397,8 @@ function preLoadingComplete()
    //监听进度事件
    req.addEventListener("progress", function (evt) {
          if (evt.lengthComputable) {
-            var percentComplete = evt.loaded / evt.total;
-            $("#curtain").text("rom loading: " + percentComplete*100+"%");
+            var percentComplete = (evt.loaded*100 / evt.total).toFixed(5);
+            $("#curtain").text("rom loading: " + percentComplete+"%");
          }
    }, false);
 
@@ -479,6 +480,9 @@ function startRetroArch()
 
    Module['callMain'](Module['arguments']);
    document.getElementById('canvas').focus();
+   /////////////erwertao add begin///////////////////
+   init_joy_pad();
+   /////////////erwertao add end////////////////////
 }
 
 /*
@@ -562,6 +566,7 @@ function buildFileTree(root,rootPath,basePath,baseURL){
       }
    }
 }
+
 function mapRoms() {
    try
    {
@@ -664,14 +669,51 @@ $(function() {
       $('#lblLocal').addClass('active');
       idbfsInit();
    });
-
-   /////////////erwertao add begin///////////////////
-   init_joy_pad();
-   /////////////erwertao add end////////////////////
  });
 
 ///////erwertao add begin///////////////////////
-function next_joy_pad(){
+var key_binds = null; //key_binds[i]表示玩家i当前游戏的键位绑定关系
+
+function load_binds(){
+   //遍历当前游戏的键位设置文件,并同步到key_binds中
+   try
+   {
+      var data = FS.readFile(user_data_dir+'/web_binds/'+getArcadeIndex(),{ encoding: 'utf8' });
+      key_binds = JSON.parse(data);
+   }
+   catch(err)
+   {
+      var arcinfo = arcade_arr[getArcadeIndex()];
+      var player_num = arcinfo[2];
+      key_binds = [];
+      for (var i=0;i<player_num;i++) {
+         key_binds.push({});
+      }
+      //console.log(err);
+   }
+}
+
+function save_binds(){
+   //把key_binds保存到设置
+   try
+   {
+      FS.createFolder(user_data_dir,'web_binds',true,true);
+   }
+   catch(err)
+   {
+      //console.log(err);
+   }
+   try
+   {
+      FS.writeFile( user_data_dir+'/web_binds/'+getArcadeIndex(), JSON.stringify(key_binds) ,{ encoding: 'utf8' });
+   }
+   catch(err)
+   {
+      //console.log(err);
+   }
+}
+
+function init_joy_pad(){
    var playType = getPlayType();
    if (playType==0){
       //net play
@@ -697,8 +739,15 @@ function next_joy_pad(){
                      btn.addEventListener('keydown', onKeyDown,false);
                      btn.addEventListener('keypress', function(e) {e.stopImmediatePropagation();},false);
                      btn.addEventListener('keyup', function(e) {e.stopImmediatePropagation();},false);
+                     var bidx = btn.getAttribute("bidx")
+                     var code = key_binds[pidx][bidx];
+                     if (code){
+                        btn.value = code;
+                        _set_binds_key(pidx,bidx,rwebinput_key_to_code_map[code]);
+                     }
                   }
                }
+               $("#joypads").show();
          }
       };
       xhr.open("GET", "/joypads/"+joypad_type+".html", true);
@@ -729,9 +778,16 @@ function next_joy_pad(){
                         btn.addEventListener('keydown', onKeyDown,false);
                         btn.addEventListener('keypress', function(e) {e.stopImmediatePropagation();},false);
                         btn.addEventListener('keyup', function(e) {e.stopImmediatePropagation();},false);
+                        var bidx = btn.getAttribute("bidx")
+                        var code = key_binds[pidx][bidx];
+                        if (code){
+                           btn.value = code;
+                           _set_binds_key(pidx,bidx,rwebinput_key_to_code_map[code]);
+                        }
                      }
                   }
                }
+               $("#joypads").show();
          }
       };
       xhr.open("GET", "/joypads/"+joypad_type+".html", true);
@@ -748,13 +804,11 @@ function next_joy_pad(){
       var pidx = Number(e.target.getAttribute("pidx"));
       var bidx = Number(e.target.getAttribute("bidx"));
       _set_binds_key(pidx,bidx,rwebinput_key_to_code_map[e.code]);
+      key_binds[pidx][bidx] = e.code;
+      save_binds();
       e.stopImmediatePropagation();
       e.target.blur();
    }
-}
-
-function init_joy_pad(){
-   next_joy_pad();
 }
 
 function repeat(){
