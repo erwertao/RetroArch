@@ -381,6 +381,143 @@ function idbfsSyncComplete()
    preLoadingComplete();
 }
 
+//多线程下载专用变量 begin
+var muti_down_load_total_size = 1;  //文件总大小
+var muti_down_load_loaded_size = 0;  //已下载大小
+var total_thread_num = 0;
+var ended_thread_num = 0;
+var big_buf = null;
+function thread_end(buf,start,end,completeFunc){
+   for (var i=start;i<end+1;i++){
+      big_buf[i] = buf[i-start];
+   }
+   ended_thread_num += 1;
+   if (ended_thread_num>=total_thread_num) {
+      console.log("finished");
+      completeFunc(big_buf);
+      big_buf = null;
+   }
+}
+var progress_d = {};
+function thread_progress(thread_num,loaded,progressFunc){
+   if (progress_d[thread_num]==undefined) {
+      muti_down_load_loaded_size += loaded;
+      progress_d[thread_num] = loaded
+   } else {
+      muti_down_load_loaded_size += (loaded-progress_d[thread_num]);
+      progress_d[thread_num] = loaded
+   }
+   
+   progressFunc(muti_down_load_loaded_size,muti_down_load_total_size);
+}
+//多线程下载专用变量 end
+
+
+function fastDownload(url,progressFunc,completeFunc)
+{
+   progress_d = {};
+   //get file info first,size,accept range or not
+   var head_req = new XMLHttpRequest();
+   head_req.open("HEAD", url, true);
+   head_req.onreadystatechange = function () {
+      if (head_req.readyState === 4 && head_req.status === 200) {
+         var file_size = Number(head_req.getResponseHeader("content-length"));
+         var min_payload_size = 1024; //每个xhr至少要下载1K
+         if (head_req.getResponseHeader("accept-ranges")=="bytes" && file_size>min_payload_size) {
+            //支持分段,多线程下载
+
+            muti_down_load_total_size = file_size;
+            muti_down_load_loaded_size = 0;
+            big_buf = new Uint8Array(file_size);
+
+            var max_threads = 16; //最多下载线程
+            //决定下载线程数
+            var thread_num = Math.min( Math.ceil(file_size/min_payload_size),max_threads );
+
+            total_thread_num = thread_num;
+            ended_thread_num = 0;
+
+            var payload_size = Math.ceil(file_size/thread_num);
+            var start = 0;
+            for (let i=0;i<thread_num;i++) {
+               var get_req = new XMLHttpRequest();
+               get_req.open("GET", url, true);
+
+               get_req.addEventListener("progress", function (evt) {
+                  if (evt.lengthComputable) {
+                     thread_progress(i,evt.loaded,progressFunc);
+                  }
+               }, false);
+
+               get_req.responseType = "blob";
+               end = Math.min(start + payload_size-1,file_size-1);
+               get_req.setRequestHeader("Range","bytes="+start+"-"+end);
+               get_req.onreadystatechange = function () {
+                  if (this.readyState === 4 && (this.status === 200 || this.status === 206)) {   //206是部分完成
+                     var length = this.getResponseHeader("Content-Length"); //2001
+                     var range = this.getResponseHeader("Content-Range"); //bytes 0-2000/42038587
+                     console.log("ys!",length,range);
+                     if (length!=null && range!=null){
+                        var len = Number(length);
+                        var range_params = range.split(" ");
+                        range = range_params[range_params.length-1];
+                        range_params = range.split("/");
+                        var total = Number(range_params[1]);
+                        range = range_params[0];
+                        range_params = range.split("-");
+                        var start = Number(range_params[0]);
+                        var end = Number(range_params[1]);
+                        if (end-start+1==len) {
+                           //当前线程下载成功
+                           var reader = new FileReader();
+                           reader.onload = (function (start,end) {
+                              return function(e) 
+                              {
+                                 var buf = new Uint8Array(e.target.result);
+                                 thread_end(buf,start,end,completeFunc);
+                              };
+                           })(start,end);
+                           reader.readAsArrayBuffer(this.response);
+                        }
+                     }
+                  }
+               };
+               get_req.send();
+               start = end+1;
+               if(start>=file_size){
+                  break;
+               }
+            }
+         } else {
+            //不支持分段或文件太小不需要分段,单线程下载
+            var get_req = new XMLHttpRequest();
+            get_req.open("GET", url, true);
+            //监听进度事件
+            get_req.addEventListener("progress", function (evt) {
+               if (evt.lengthComputable) {
+                  progressFunc(evt.loaded,evt.total);
+               }
+            }, false);
+
+            get_req.responseType = "blob";
+            get_req.onreadystatechange = function () {
+                  if (this.readyState === 4 && this.status === 200) {
+                     var reader = new FileReader();
+                     reader.onload = function() 
+                     {
+                        var buf = new Uint8Array(this.result);
+                        completeFunc(buf);
+                     }
+                     reader.readAsArrayBuffer(this.response);
+                  }
+            };
+            get_req.send();
+         }
+      }
+   };
+   head_req.send();
+}
+
 function preLoadingComplete()
 {
    /* Make the Preview image clickable to start RetroArch. */
@@ -392,40 +529,28 @@ function preLoadingComplete()
    load_binds();
    // load rom from remote
    var rom_url = rom_parent_url + arcade_arr[getArcadeIndex()][1]; ///////////////////////todo
-   var req = new XMLHttpRequest();
-   req.open("GET", rom_url, true);
-   //监听进度事件
-   req.addEventListener("progress", function (evt) {
-         if (evt.lengthComputable) {
-            var percentComplete = (evt.loaded*100 / evt.total).toFixed(5);
-            $("#curtain").text("rom loading: " + percentComplete+"%");
-         }
-   }, false);
 
-   req.responseType = "blob";
-   req.onreadystatechange = function () {
-         if (req.readyState === 4 && req.status === 200) {
-            var reader = new FileReader();
-            reader.onload = function() 
-            {
-               var buf = new Uint8Array(this.result);
-               //build the content folder
-               try
-               {
-                  FS.createFolder(rom_parent_dir,arcade_arr[getArcadeIndex()][1].split("/")[1],true,true);
-               }
-               catch(err)
-               {
-                  //console.log(err);
-               }
-               FS.writeFile( rom_parent_dir + arcade_arr[getArcadeIndex()][1], buf ,{ encoding: 'binary' });
-               //$('.webplayer-preview').addClass('loaded');      //erwertao delete
-               setTimeout(function(){repeat();},200);
-            }
-            reader.readAsArrayBuffer(req.response);
-         }
+   progressFunc = function (loaded,total) {
+      var percentComplete = (loaded*100 / total).toFixed(5);
+      $("#curtain").text("rom loading: " + percentComplete+"%");
    };
-   req.send();
+
+   completeFunc = function (u8ArrBuf) {
+      //build the content folder
+      try
+      {
+         FS.createFolder(rom_parent_dir,arcade_arr[getArcadeIndex()][1].split("/")[1],true,true);
+      }
+      catch(err)
+      {
+         //console.log(err);
+      }
+      FS.writeFile( rom_parent_dir + arcade_arr[getArcadeIndex()][1], u8ArrBuf ,{ encoding: 'binary' });
+      //$('.webplayer-preview').addClass('loaded');      //erwertao delete
+      setTimeout(function(){repeat();},200);
+   }
+
+   fastDownload(rom_url,progressFunc,completeFunc);
    ///////////erwertao add end///////////////////
 }
 
