@@ -456,7 +456,7 @@ function fastDownload(url,progressFunc,completeFunc)
                   if (this.readyState === 4 && (this.status === 200 || this.status === 206)) {   //206是部分完成
                      var length = this.getResponseHeader("Content-Length"); //2001
                      var range = this.getResponseHeader("Content-Range"); //bytes 0-2000/42038587
-                     console.log("ys!",length,range);
+                     //console.log("ys!",length,range);
                      if (length!=null && range!=null){
                         var len = Number(length);
                         var range_params = range.split(" ");
@@ -550,7 +550,16 @@ function preLoadingComplete()
       setTimeout(function(){repeat();},200);
    }
 
-   fastDownload(rom_url,progressFunc,completeFunc);
+   path_info = FS.analyzePath(rom_parent_dir + arcade_arr[getArcadeIndex()][1]);
+   if (path_info.exists) {
+      if (FS.isFile(path_info.object.mode)){
+         setTimeout(function(){repeat();},200);
+      } else {
+         alert("error! rom file is a folder!");
+      }
+   } else {
+      fastDownload(rom_url,progressFunc,completeFunc);
+   }
    ///////////erwertao add end///////////////////
 }
 
