@@ -540,13 +540,8 @@ function preLoadingComplete()
       setTimeout(function(){repeat();},200);
    }
 
-   path_info = FS.analyzePath(rom_parent_dir + arcade_arr[getArcadeIndex()][1]);
-   if (path_info.exists) {
-      if (FS.isFile(path_info.object.mode)){
-         setTimeout(function(){repeat();},200);
-      } else {
-         alert("error! rom file is a folder!");
-      }
+   if (bfs_fs.existsSync(rom_parent_dir + arcade_arr[getArcadeIndex()][1])) {
+      setTimeout(function(){repeat();},200);
    } else {
       fastDownload(rom_url,progressFunc,completeFunc);
    }
