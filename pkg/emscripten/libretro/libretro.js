@@ -529,13 +529,13 @@ function preLoadingComplete()
       //build the content folder
       try
       {
-         FS.createFolder(rom_parent_dir,arcade_arr[getArcadeIndex()][1].split("/")[1],true,true);
+         bfs_fs.mkdirSync(rom_parent_dir+"/"+arcade_arr[getArcadeIndex()][1].split("/")[1]);
       }
       catch(err)
       {
          //console.log(err);
       }
-      FS.writeFile( rom_parent_dir + arcade_arr[getArcadeIndex()][1], u8ArrBuf ,{ encoding: 'binary' });
+      bfs_fs.writeFileSync( rom_parent_dir + arcade_arr[getArcadeIndex()][1], bfs_buffer.Buffer(u8ArrBuf));
       //$('.webplayer-preview').addClass('loaded');      //erwertao delete
       setTimeout(function(){repeat();},200);
    }
@@ -674,7 +674,7 @@ function buildFileTree(root,rootPath,basePath,baseURL){
       if (node.isDir()) {
          try
          {
-            FS.createFolder(rootPath,name,true,true);
+            bfs_fs.mkdirSync(rootPath+"/"+name);
          }
          catch(err)
          {
@@ -686,7 +686,7 @@ function buildFileTree(root,rootPath,basePath,baseURL){
          var xhr = new XMLHttpRequest();
 	      xhr.open('GET', absURL, false);
 	      xhr.send(null);
-         FS.writeFile(rootPath+"/"+name, xhr.responseText ,{ encoding: 'utf8' });
+         bfs_fs.writeFileSync(rootPath+"/"+name, xhr.responseText);
       }
    }
 }
@@ -694,7 +694,7 @@ function buildFileTree(root,rootPath,basePath,baseURL){
 function mapRoms() {
    try
    {
-      FS.createFolder(user_data_dir,'roms',true,true);
+      bfs_fs.mkdirSync(user_data_dir+"/"+'roms');
    }
    catch(err)
    {
@@ -704,7 +704,7 @@ function mapRoms() {
 function mapBiosConf() {
    try
    {
-      FS.createFolder(user_data_dir,'config',true,true);
+      bfs_fs.mkdirSync(user_data_dir+"/"+'config');
    }
    catch(err)
    {
@@ -821,7 +821,7 @@ function save_binds(){
    //把key_binds保存到设置
    try
    {
-      bfs_fs.mkdir(user_data_dir+"/"+'web_binds');
+      bfs_fs.mkdirSync(user_data_dir+"/"+'web_binds');
    }
    catch(err)
    {
