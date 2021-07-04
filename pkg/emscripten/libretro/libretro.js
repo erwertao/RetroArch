@@ -307,6 +307,8 @@ var arcade_arr = [
 ];
 ////////////erwertao add end//////////////////
 
+var bfs_fs = BrowserFS.BFSRequire("fs")
+var bfs_buffer = BrowserFS.BFSRequire("buffer")
 var BrowserFS = BrowserFS;
 var afs;
 
@@ -449,7 +451,7 @@ function fastDownload(url,progressFunc,completeFunc)
                   }
                }, false);
 
-               get_req.responseType = "blob";
+               get_req.responseType = "arraybuffer";
                end = Math.min(start + payload_size-1,file_size-1);
                get_req.setRequestHeader("Range","bytes="+start+"-"+end);
                get_req.onreadystatechange = function () {
@@ -469,15 +471,8 @@ function fastDownload(url,progressFunc,completeFunc)
                         var end = Number(range_params[1]);
                         if (end-start+1==len) {
                            //当前线程下载成功
-                           var reader = new FileReader();
-                           reader.onload = (function (start,end) {
-                              return function(e) 
-                              {
-                                 var buf = new Uint8Array(e.target.result);
-                                 thread_end(buf,start,end,completeFunc);
-                              };
-                           })(start,end);
-                           reader.readAsArrayBuffer(this.response);
+                           var buf = new Uint8Array(this.response);
+                           thread_end(buf,start,end,completeFunc);
                         }
                      }
                   }
@@ -499,16 +494,11 @@ function fastDownload(url,progressFunc,completeFunc)
                }
             }, false);
 
-            get_req.responseType = "blob";
+            get_req.responseType = "arraybuffer";
             get_req.onreadystatechange = function () {
                   if (this.readyState === 4 && this.status === 200) {
-                     var reader = new FileReader();
-                     reader.onload = function() 
-                     {
-                        var buf = new Uint8Array(this.result);
-                        completeFunc(buf);
-                     }
-                     reader.readAsArrayBuffer(this.response);
+                     var buf = new Uint8Array(this.response);
+                     completeFunc(buf);
                   }
             };
             get_req.send();
@@ -812,7 +802,7 @@ function load_binds(){
    //遍历当前游戏的键位设置文件,并同步到key_binds中
    try
    {
-      var data = FS.readFile(user_data_dir+'/web_binds/'+getArcadeIndex(),{ encoding: 'utf8' });
+      var data = bfs_fs.readFileSync(user_data_dir+'/web_binds/'+getArcadeIndex());
       key_binds = JSON.parse(data);
    }
    catch(err)
@@ -831,7 +821,7 @@ function save_binds(){
    //把key_binds保存到设置
    try
    {
-      FS.createFolder(user_data_dir,'web_binds',true,true);
+      bfs_fs.mkdir(user_data_dir+"/"+'web_binds');
    }
    catch(err)
    {
@@ -839,7 +829,7 @@ function save_binds(){
    }
    try
    {
-      FS.writeFile( user_data_dir+'/web_binds/'+getArcadeIndex(), JSON.stringify(key_binds) ,{ encoding: 'utf8' });
+      bfs_fs.writeFileSync( user_data_dir+'/web_binds/'+getArcadeIndex(), JSON.stringify(key_binds));
    }
    catch(err)
    {
