@@ -1,0 +1,225 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <style type="text/css">
+            .text-effect {
+                overflow: hidden;
+                position: relative;
+                -webkit-filter: contrast(110%) brightness(190%);
+                filter: contrast(110%) brightness(190%);
+            }
+
+            .neon {
+                position: relative;
+                background: black;
+                color: transparent;
+            }
+            .neon::before, .neon::after {
+                content: attr(data-text);
+                color: white;
+                -webkit-filter: blur(0.02em);
+                filter: blur(0.02em);
+                position: absolute;
+                top: 0;
+                left: calc(50% - 136px);
+                pointer-events: none;
+            }
+            .neon::after {
+                mix-blend-mode: difference;
+            }
+
+            .gradient,
+            .spotlight {
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                pointer-events: none;
+                z-index: 10;
+            }
+
+            .gradient {
+                background: -webkit-linear-gradient(45deg, blue, rgb(205, 255, 205));
+                background: linear-gradient(45deg, blue, rgb(205, 255, 205));
+                mix-blend-mode: multiply;
+            }
+
+            .spotlight {
+                -webkit-animation: light 5s infinite linear;
+                animation: light 5s infinite linear;
+                background: -webkit-radial-gradient(circle, #ffffff, rgba(0, 0, 0, 0) 25%) 0 0/25% 25%, -webkit-radial-gradient(circle, #ffffff, #000000 25%) 50% 50%/12.5% 12.5%;
+                background: radial-gradient(circle, #ffffff, rgba(0, 0, 0, 0) 25%) 0 0/25% 25%, radial-gradient(circle, #ffffff, #000000 25%) 50% 50%/12.5% 12.5%;
+                top: -100%;
+                left: -100%;
+                mix-blend-mode: color-dodge;
+            }
+
+            @-webkit-keyframes light {
+                100% {
+                    -webkit-transform: translate3d(50%, 50%, 0);
+                    transform: translate3d(50%, 50%, 0);
+                }
+            }
+
+            @keyframes light {
+                100% {
+                    -webkit-transform: translate3d(50%, 50%, 0);
+                    transform: translate3d(50%, 50%, 0);
+                }
+            }
+            .neon {
+                font: 600 100px 'Lato', sans-serif;
+                /*text-transform: uppercase;*/
+                text-align: center;
+                margin: 0;
+
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            .neon:focus {
+                outline: none;
+                border: 1px dotted white;
+            }
+
+
+
+
+            .room {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                grid-gap: 10px;
+            }
+            .brand {
+                background: blue;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-family: impact;
+                font-size: calc(20px + 2vw);
+                text-align: center;
+            }
+            .arcade {
+                /*background: purple;*/
+                /*padding: 50px;*/
+                background-repeat: no-repeat;
+                background-size: contain;
+                color: white;
+                height: 150px;
+            }
+
+            /* Switch开关样式 */
+            /* 必须是input为 checkbox class 添加 switch 才能实现以下效果 */
+            input[type='checkbox'].switch{
+                outline: none;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                position: relative;
+                width: 40px;
+                height: 20px;
+                top:7px;
+                background: #ccc;
+                border-radius: 10px;
+                transition: border-color .3s, background-color .3s;
+            }
+
+            input[type='checkbox'].switch::after {
+                content: '';
+                display: inline-block;
+                width: 1rem;
+                height:1rem;
+                border-radius: 50%;
+                background: #fff;
+                box-shadow: 0, 0, 2px, #999;
+                transition:.4s;
+                top: 2px;
+                position: absolute;
+                left: 2px;
+            }
+
+            input[type='checkbox'].switch:checked {
+                background: rgb(19, 206, 102);
+            }
+            /* 当input[type=checkbox]被选中时：伪元素显示下面样式 位置发生变化 */
+            input[type='checkbox'].switch:checked::after {
+                content: '';
+                position: absolute;
+                left: 55%;
+                top: 2px;
+            }
+
+            .bar {
+                text-align:right;
+            }
+
+            .bar > * {
+                display:inline-block;
+                position:relative;
+            }
+        </style>
+    </head>
+    <body style="background-color: black;">
+        <!--<div class="brand">brand</div>-->
+        <div style="position: relative;overflow:hidden;">
+            <h1 class="neon" data-text="凤翔">凤翔</h1>
+            <div class="gradient"></div>
+            <div class="spotlight"></div>
+        </div>
+        <div class="bar">
+            <label style="color: white;">net-play: <input type="checkbox" class="switch"></label>         
+        </div>
+        <div class="room">
+        </div>
+        <script>
+            var arcade_arr = [
+                //game English name
+                //game Chinese name
+                //max player num supported by this game
+                //pic url
+                //index of arcade_arr in libretro.js
+                ["KOF98","拳皇98",2,"/media/logo/kof98.png",0],
+                ["Metal Slug X","合金弹头X",2,"/media/logo/mslugX.png",1],
+                ["Cadillacs and Dinosaurs","恐龙新世纪",3,"/media/logo/dino.png",2],
+                ["Contra","魂斗罗",2,"/media/logo/contra.png",3],
+                ["Street Fighter II","街头霸王2",2,"/media/logo/sf2ce.png",4]
+            ];
+            var room = document.getElementsByClassName("room")[0];
+            for (var i=0;i<arcade_arr.length;i++) {
+                var arcade_div = document.createElement('div');
+                arcade_div.textContent = arcade_arr[i][1];
+                arcade_div.style.backgroundImage = "url(\""+arcade_arr[i][3]+"\")";
+                arcade_div.classList.add("arcade");
+                arcade_div.style.cursor = "pointer"
+                arcade_div.onclick = (function(arcade_idx) { 
+                    return function() { window.location.href="game.html#"+arcade_idx+",0,1"; }
+                })(arcade_arr[i][4]);
+                room.appendChild(arcade_div);
+            }
+        </script>
+        <br>
+        Net Play
+        <br>
+        KOF98
+        <a href="game.html#0,0,0" target="_self">P1</a>
+        <a href="game.html#0,1,0" target="_self">P2</a>
+        <br>
+        Metal Slug X
+        <a href="game.html#1,0,0" target="_self">P1</a>
+        <a href="game.html#1,1,0" target="_self">P2</a>
+        <br>
+        Cadillacs and Dinosaurs
+        <a href="game.html#2,0,0" target="_self">P1</a>
+        <a href="game.html#2,1,0" target="_self">P2</a>
+        <a href="game.html#2,2,0" target="_self">P3</a>
+        <br>
+        Contra
+        <a href="game.html#3,0,0" target="_self">P1</a>
+        <a href="game.html#3,1,0" target="_self">P2</a>
+        <br>
+    </body>
+</html>
