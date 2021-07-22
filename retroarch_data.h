@@ -1263,12 +1263,7 @@ enum
    RA_OPT_MAX_FRAMES_SCREENSHOT_PATH,
    RA_OPT_SET_SHADER,
    RA_OPT_ACCESSIBILITY,
-   RA_OPT_LOAD_MENU_ON_ERROR,
-////////erwertao add begin/////////
-#ifdef ERWERTAO_PLAY_DIRECTLY
-   RA_OPT_LOAD_ROM
-#endif
-////////erwertao add end///////////
+   RA_OPT_LOAD_MENU_ON_ERROR
 };
 
 enum  runloop_state
@@ -2332,8 +2327,6 @@ struct rarch_state
 ////////// erwertao add begin///////////
 #ifdef ERWERTAO_PLAY_DIRECTLY
    int ws;
-   char frontend_content_path[PATH_MAX_LENGTH];
-   int load_content_from_frontend;    //0 not load, 1 load, 2 loading
 #endif
 ////////// erwertao add end ////////////
 };

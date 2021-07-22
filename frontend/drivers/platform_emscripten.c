@@ -176,9 +176,9 @@ static void frontend_emscripten_get_env(int *argc, char *argv[],
 int main(int argc, char *argv[])
 {
    dummyErrnoCodes();
-   RARCH_LOG_OUTPUT("erwertao main\n");
-   emscripten_set_canvas_element_size("#canvas", 800, 600);
-   emscripten_set_element_css_size("#canvas", 800.0, 600.0);
+   //here is the emscripten entry point (log is useless). --- erwertao
+   //emscripten_set_canvas_element_size("#canvas", 800, 600); //erwertao deleted
+   //emscripten_set_element_css_size("#canvas", 800.0, 600.0); //erwertao deleted, set this in javascript.
    emscripten_set_main_loop(emscripten_mainloop, 0, 0);
    rarch_main(argc, argv, NULL);
 

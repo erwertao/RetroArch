@@ -589,19 +589,24 @@ function getParam(name) {
 
 function startRetroArch()
 {
-   $('.webplayer').show();
-   //$('.webplayer-preview').hide();  //erwertao delete////////
-   $("#curtain").hide();
+   $("#curtain").click(function(){
+      $("#curtain").hide();
+      $('.webplayer').show();
+      $('#btnFullscreen').removeClass('disabled');
 
-   $('#btnFullscreen').removeClass('disabled');
+      document.getElementById("btnFullscreen").disabled = false;
 
-   document.getElementById("btnFullscreen").disabled = false;
+      Module['callMain'](Module['arguments']);
+      var cvs = document.getElementById('canvas');
+      cvs.style.width = cvs.width / window.devicePixelRatio + 'px';
+      cvs.style.height= cvs.height/ window.devicePixelRatio + 'px';
+      cvs.focus();
 
-   Module['callMain'](Module['arguments']);
-   document.getElementById('canvas').focus();
-   /////////////erwertao add begin///////////////////
-   init_joy_pad();
-   /////////////erwertao add end////////////////////
+      init_joy_pad();
+
+   }); 
+   $("#curtain").css('cursor','pointer');
+   $("#curtain").text("Click to Start!");
 }
 
 /*
@@ -620,7 +625,7 @@ var Module =
 {
   noInitialRun: true,
   //arguments: ["-v", "--menu"],//erwertao delete//////
-  arguments: ["--menu", "--rom", rom_parent_dir + arcade_arr[getArcadeIndex()][1] ], ///erwertao add
+  arguments: [ rom_parent_dir + arcade_arr[getArcadeIndex()][1] ], ///erwertao add
   /*
       erwertao retroarch implemented a getopt_long function, it is not standard, "--rom=123" or "--rom 123" are not supported, 
       you have to input "--rom" "123" instead. Check compat_getopt.c

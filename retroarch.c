@@ -15448,8 +15448,6 @@ int rarch_main(int argc, char *argv[], void *data)
 ////////// erwertao add begin///////////
 #ifdef ERWERTAO_PLAY_DIRECTLY
    p_rarch->ws = 0;
-   p_rarch->frontend_content_path[0] = 0;
-   p_rarch->load_content_from_frontend = 0;
 #endif
 ////////// erwertao add end ////////////
 #if defined(HAVE_CG) || defined(HAVE_GLSL) || defined(HAVE_SLANG) || defined(HAVE_HLSL)
@@ -23737,7 +23735,6 @@ static unsigned menu_event(
 
    ////////// erwertao add begin //////////////
    #ifdef ERWERTAO_PLAY_DIRECTLY
-      //puts("erwertao: menu_event");
       /*if (p_rarch->ws>0) {
          puts("erwertao: ws send");
 
@@ -23749,36 +23746,6 @@ static unsigned menu_event(
       }*/
    #endif
    ////////// erwertao add end //////////////
-
-   #ifdef ERWERTAO_PLAY_DIRECTLY
-      ////// erwertao add begin ////////
-      if (p_rarch->load_content_from_frontend!=0) {
-         if (p_rarch->load_content_from_frontend==1) {
-            puts("erwertao :load!");
-            //command_event(CMD_EVENT_LOAD_CORE,NULL);
-            content_ctx_info_t content_info;
-            content_info.argc                   = 0;
-            content_info.argv                   = NULL;
-            content_info.args                   = NULL;
-            content_info.environ_get            = NULL;
-            if (!task_push_load_content_with_core_from_menu(
-                     p_rarch->frontend_content_path, &content_info,
-                     CORE_TYPE_PLAIN, NULL, NULL))
-            {
-               puts("erwertao :failed!");
-               return MENU_ACTION_NOOP;
-            }
-            menu_driver_set_last_start_content(p_rarch->frontend_content_path);
-            p_rarch->load_content_from_frontend = 2;
-            return MENU_ACTION_NOOP;
-         }
-         else {
-            puts("erwertao :loading...");
-            return MENU_ACTION_NOOP;
-         }
-      }
-      ////// erwertao add end ///////////////
-   #endif
 
    /* Get pointer (mouse + touchscreen) input
     * Note: Must be done regardless of menu screensaver
@@ -34540,11 +34507,6 @@ static bool retroarch_parse_input_and_config(
       { "log-file",           1, NULL, RA_OPT_LOG_FILE },
       { "accessibility",      0, NULL, RA_OPT_ACCESSIBILITY},
       { "load-menu-on-error", 0, NULL, RA_OPT_LOAD_MENU_ON_ERROR },
-////////erwertao add begin/////////
-#ifdef ERWERTAO_PLAY_DIRECTLY
-      { "rom",                1, NULL, RA_OPT_LOAD_ROM },
-#endif
-////////erwertao add end///////////
       { NULL, 0, NULL, 0 }
    };
 
@@ -35091,15 +35053,6 @@ static bool retroarch_parse_input_and_config(
                /* Cache log file path override */
                rarch_log_file_set_override(optarg);
                break;
-///////////////erwertao add begin////////////////
-#ifdef ERWERTAO_PLAY_DIRECTLY
-            case RA_OPT_LOAD_ROM:
-               printf("erwertao load rom: %s\n",optarg);
-               p_rarch->load_content_from_frontend = 1;
-               strlcpy(p_rarch->frontend_content_path,optarg,sizeof(p_rarch->frontend_content_path));
-               break;
-#endif 
-///////////////erwertao add end///////////////////
             case 'h':
 #ifdef HAVE_CONFIGFILE
             case 'c':
