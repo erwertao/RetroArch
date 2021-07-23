@@ -396,6 +396,7 @@ function thread_end(buf,start,end,completeFunc){
    ended_thread_num += 1;
    if (ended_thread_num>=total_thread_num) {
       console.log("finished");
+      $("#curtain-text").text("基板文件下载中...");
       completeFunc(big_buf);
       big_buf = null;
    }
@@ -522,7 +523,7 @@ function preLoadingComplete()
 
    progressFunc = function (loaded,total) {
       var percentComplete = (loaded*100 / total).toFixed(5);
-      $("#curtain").text("rom loading: " + percentComplete+"%");
+      $("#curtain-text").text("rom loading: " + percentComplete+"%");
    };
 
    completeFunc = function (u8ArrBuf) {
@@ -597,16 +598,17 @@ function startRetroArch()
       document.getElementById("btnFullscreen").disabled = false;
 
       Module['callMain'](Module['arguments']);
-      var cvs = document.getElementById('canvas');
+      /*var cvs = document.getElementById('canvas');
       cvs.style.width = cvs.width / window.devicePixelRatio + 'px';
-      cvs.style.height= cvs.height/ window.devicePixelRatio + 'px';
-      cvs.focus();
+      cvs.style.height= cvs.height/ window.devicePixelRatio + 'px';*/
+      ResizeCanvas();
+      document.getElementById('canvas').focus();
 
       init_joy_pad();
 
    }); 
    $("#curtain").css('cursor','pointer');
-   $("#curtain").text("Click to Start!");
+   $("#curtain-text").text("Click to Start!");
 }
 
 /*
@@ -720,8 +722,42 @@ function mapBiosConf() {
 }
 //////////////////erwertao add end//////////////////////////////
 
+function ResizeCanvas(){
+   var wr = 4;
+   var hr = 3;
+   var minH = 240;
+   var minW = 320;
+   var maxH = 900;
+   var maxW = 1200;
+   //宽高比
+   var bodyWidth = window.innerWidth;      //网页可见区域宽
+   var bodyHeight = window.innerHeight;     //网页可见区域高
+   var cvs = document.getElementById('canvas');
+   if (bodyWidth*hr >= wr*bodyHeight){
+      //屏幕比较宽, 以高为基准
+      var height = bodyHeight;
+      if (height<minH) {height=minH;}
+      else if(height>maxH) {height=maxH}
+      var width = height*wr/hr;
+      cvs.width = width;
+      cvs.height = height;
+   } else {
+      //以宽为基准
+      var width = bodyWidth;
+      if (width<minW) {width=minW}
+      else if(width>maxW) {width=maxW}
+      var height = width*hr/wr;
+      cvs.width = width;
+      cvs.height = height;
+   }
+   cvs.style.width = cvs.width / window.devicePixelRatio + 'px';
+   cvs.style.height= cvs.height/ window.devicePixelRatio + 'px';
+}
+
 // When the browser has loaded everything.
 $(function() {
+   window.onresize = function(){ResizeCanvas()};
+
    // Enable all available ToolTips.
    $('.tooltip-enable').tooltip({
       placement: 'right'
