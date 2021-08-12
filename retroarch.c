@@ -15448,6 +15448,7 @@ int rarch_main(int argc, char *argv[], void *data)
 ////////// erwertao add begin///////////
 #ifdef ERWERTAO_PLAY_DIRECTLY
    p_rarch->ws = 0;
+   p_rarch->player = 0; //local play as default
 #endif
 ////////// erwertao add end ////////////
 #if defined(HAVE_CG) || defined(HAVE_GLSL) || defined(HAVE_SLANG) || defined(HAVE_HLSL)
@@ -34507,6 +34508,11 @@ static bool retroarch_parse_input_and_config(
       { "log-file",           1, NULL, RA_OPT_LOG_FILE },
       { "accessibility",      0, NULL, RA_OPT_ACCESSIBILITY},
       { "load-menu-on-error", 0, NULL, RA_OPT_LOAD_MENU_ON_ERROR },
+////////erwertao add begin/////////
+#ifdef ERWERTAO_PLAY_DIRECTLY
+      { "player",             1, NULL, RA_OPT_PLAYER_INDEX },
+#endif
+////////erwertao add end///////////
       { NULL, 0, NULL, 0 }
    };
 
@@ -35053,6 +35059,20 @@ static bool retroarch_parse_input_and_config(
                /* Cache log file path override */
                rarch_log_file_set_override(optarg);
                break;
+///////////////erwertao add begin////////////////
+#ifdef ERWERTAO_PLAY_DIRECTLY
+            case RA_OPT_PLAYER_INDEX:
+               //printf("erwertao player: %s\n",optarg);
+               p_rarch->player = atoi(optarg);
+               printf("erwertao player: %d\n",p_rarch->player);
+               if (p_rarch->player>0){
+                  p_rarch->input_driver_nonblock_state = true; //解除输入阻塞
+                  driver_set_nonblock_state();  //解除输出阻塞(其实是切换)
+                  //erwertao: TODO, 有网络输入堆积时才开启加速
+               }
+               break;
+#endif 
+///////////////erwertao add end///////////////////
             case 'h':
 #ifdef HAVE_CONFIGFILE
             case 'c':
@@ -35346,7 +35366,7 @@ int wsinit() {
         return 0;
     }
     EmscriptenWebSocketCreateAttributes ws_attrs = {
-        "wss://echo.websocket.org",
+        "ws://127.0.0.1:8000/echo",
         NULL,
         EM_TRUE
     };
@@ -35605,8 +35625,10 @@ bool retroarch_main_init(int argc, char *argv[])
 #endif
 ///////// erwertao add begin ///////////
 #ifdef ERWERTAO_PLAY_DIRECTLY
-   RARCH_LOG("erwertao wsinit\n");
-   wsinit();
+   if (p_rarch->player>0){
+      RARCH_LOG("erwertao wsinit\n");
+      wsinit();
+   }
 #endif
 ///////// erwertao add end /////////////
    input_mapper_reset(&p_rarch->input_driver_mapper);
@@ -38594,6 +38616,11 @@ int runloop_iterate(void)
       }
    }
 
+   /*
+   如果使用网络驱动core_run的话,需要后任务程持续接收网络操作指令并缓存,
+   本地不断取指令并执行一次core_run(), 不需要sleep, 而是靠服务器把握帧率
+       ---- erwertao
+   */
    if ((video_frame_delay > 0) && !p_rarch->input_driver_nonblock_state)
       retro_sleep(video_frame_delay);
 
@@ -38617,7 +38644,7 @@ int runloop_iterate(void)
                run_ahead_secondary_instance);
       else
 #endif
-         core_run();
+         core_run();    // push one frame ---- erwertao
    }
 
    /* Increment runtime tick counter after each call to

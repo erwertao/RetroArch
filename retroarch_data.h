@@ -1263,6 +1263,11 @@ enum
    RA_OPT_MAX_FRAMES_SCREENSHOT_PATH,
    RA_OPT_SET_SHADER,
    RA_OPT_ACCESSIBILITY,
+////////erwertao add begin/////////
+#ifdef ERWERTAO_PLAY_DIRECTLY
+   RA_OPT_PLAYER_INDEX,
+#endif
+////////erwertao add end///////////
    RA_OPT_LOAD_MENU_ON_ERROR
 };
 
@@ -2327,6 +2332,7 @@ struct rarch_state
 ////////// erwertao add begin///////////
 #ifdef ERWERTAO_PLAY_DIRECTLY
    int ws;
+   int player;  //==0:local play;   >0: net_play;  ==1:1p;  ==2:2p ......
 #endif
 ////////// erwertao add end ////////////
 };

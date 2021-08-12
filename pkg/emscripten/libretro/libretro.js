@@ -627,7 +627,7 @@ var Module =
 {
   noInitialRun: true,
   //arguments: ["-v", "--menu"],//erwertao delete//////
-  arguments: [ rom_parent_dir + arcade_arr[getArcadeIndex()][1] ], ///erwertao add
+  arguments: [ rom_parent_dir + arcade_arr[getArcadeIndex()][1], "--player", getPlayType()==1?"0":getPlayerIndex()+1+"", "-v" ], ///erwertao add
   /*
       erwertao retroarch implemented a getopt_long function, it is not standard, "--rom=123" or "--rom 123" are not supported, 
       you have to input "--rom" "123" instead. Check compat_getopt.c
