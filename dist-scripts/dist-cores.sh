@@ -254,9 +254,9 @@ for f in `ls -v *_${platform}.${EXT}`; do
       mkdir -p ../pkg/${platform}/cores
       mv -f ../retrodos.exe ../pkg/${platform}/cores/${name}.exe
    elif [ $PLATFORM = "emscripten" ] ; then
-      mkdir -p ../pkg/emscripten/
-      mv -f ../${name}_libretro.js ../pkg/emscripten/${name}_libretro.js
-      mv -f ../${name}_libretro.wasm ../pkg/emscripten/${name}_libretro.wasm
+      #mkdir -p ../pkg/emscripten/   # erwertao remove
+      mv -f ../${name}_libretro.js ../pkg/emscripten/libretro/${name}_libretro.js   # erwertao mod
+      mv -f ../${name}_libretro.wasm ../pkg/emscripten/libretro/${name}_libretro.wasm  # erwertao mod
       if [ $pthread != 0 ] ; then
          mv -f ../pthread-main.js ../pkg/emscripten/pthread-main.js
       fi

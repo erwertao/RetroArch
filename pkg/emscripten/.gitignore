@@ -1,4 +1,5 @@
 *_libretro.js
 *_libretro.js.mem
+my_arcade_server
 !/libretro/assets
 /libretro/assets/roms/*/*

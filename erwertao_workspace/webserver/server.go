@@ -70,7 +70,7 @@ func RecoverWrap(h http.HandlerFunc) http.HandlerFunc {
 
 func httpserver() {
     //文件浏览
-    http.Handle("/", http.FileServer(http.Dir("statics")))
+    http.Handle("/", http.FileServer(http.Dir("libretro")))
     http.Handle("/echo", websocket.Handler(EchoServer))
     http.HandleFunc("/api/getUserInfo", RecoverWrap(getUserInfo))
     err := http.ListenAndServe(":8000", nil)
